@@ -1,6 +1,6 @@
 # BGS-Tally-V3
 A plugin to count BGS work and send to a google sheet
-Designed for use by multiple Cmdr's
+designed for use by multiple Cmdr's
 
 Compatabile with Python 3 release
 
