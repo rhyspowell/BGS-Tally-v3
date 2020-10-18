@@ -232,7 +232,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                     system = this.TodayData[this.DataIndex.get()][0]['System']
                     index = this.DataIndex.get()
                     data = 1
-                    Sheet_Commit_Data(system, index, 'Murders', data)
+                    sheet_commit_data(system, index, 'Murders', data)
         save_data()
 
     if entry['event'] == 'MissionCompleted':  # get mission influence value
@@ -253,7 +253,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                     for z in range(0, t):
                         if fe3 == this.TodayData[y][0]['Factions'][z]['Faction']:
                             this.TodayData[y][0]['Factions'][z]['MissionPoints'] += inf
-                            Sheet_Commit_Data(system, z, 'Mission', inf)
+                            sheet_commit_data(system, z, 'Mission', inf)
         save_data()
 
     if entry['event'] == 'SellExplorationData' or entry['event'] == "MultiSellExplorationData":  # get carto data value
@@ -264,7 +264,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 system = this.TodayData[this.DataIndex.get()][0]['System']
                 index = this.DataIndex.get()
                 data = entry['TotalEarnings']
-                Sheet_Commit_Data(system, index, 'Expo', data)
+                sheet_commit_data(system, index, 'Expo', data)
         save_data()
 
     if entry['event'] == 'RedeemVoucher' and entry['Type'] == 'bounty':  # bounties collected
@@ -276,7 +276,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                     system = this.TodayData[this.DataIndex.get()][0]['System']
                     index = this.DataIndex.get()
                     data = z['Amount']
-                    Sheet_Commit_Data(system, index, 'Bounty', data)
+                    sheet_commit_data(system, index, 'Bounty', data)
         save_data()
 
     if entry['event'] == 'RedeemVoucher' and entry['Type'] == 'bond':  # bonds collected
@@ -288,7 +288,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                     system = this.TodayData[this.DataIndex.get()][0]['System']
                     index = this.DataIndex.get()
                     data = z['Amount']
-                    Sheet_Commit_Data(system, index, 'Bonds', data)
+                    sheet_commit_data(system, index, 'Bonds', data)
         save_data()
 
     if entry['event'] == 'MarketSell':  # Trade Profit
@@ -301,7 +301,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 system = this.TodayData[this.DataIndex.get()][0]['System']
                 index = this.DataIndex.get()
                 data = profit
-                Sheet_Commit_Data(system, index, 'Trade', data)
+                sheet_commit_data(system, index, 'Trade', data)
         save_data()
 
 
@@ -494,7 +494,7 @@ def sheet_insert_new_system(index):
             # worksheet.update('A2:J3', [['System', system],['Faction', 'Mission +', 'Trade', 'Bounties',
             # 'Carto Data']])
             worksheet.batch_update([{'range': 'A2:J3', 'values': [['System', system],
-                                                                  ['Faction', 'INF', 'State' 'Mission +',
+                                                                  ['Faction', 'INF', 'State', 'Mission +',
                                                                    'Mission Failed', 'Trade', 'Bounties', 'Bonds',
                                                                    'Carto Data', 'Murders']]},
                                     {'range': 'A4:A11', 'values': factionname},
