@@ -205,7 +205,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 z+=1
 
     if entry['event'] == 'FSDJump':  # get factions at jump
-        pprint('FSDJump', entry)
         this.FactionNames = []
         this.FactionStates = {'Factions': []}
         z = 0
