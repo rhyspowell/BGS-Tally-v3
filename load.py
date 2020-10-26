@@ -31,7 +31,7 @@ this.State = tk.IntVar()
 this.cred = ''  # google sheet service account cred's path to file
 
 
-def plugin_prefs(parent):
+def plugin_prefs(parent, cmdr, is_beta):
     """
    Return a TK Frame for adding to the EDMC settings dialog.
    """
@@ -43,14 +43,15 @@ def plugin_prefs(parent):
    """
     nb.Checkbutton(frame, text="Make BGS Tally Active", variable=this.Status, onvalue="Active",
                    offvalue="Paused").grid()
+
     return frame
 
 
-def prefs_changed():
+def prefs_changed(cmdr, is_beta):
     """
    Save settings.
    """
-    this.Status_Label["text"] = this.Status.get()
+    this.StatusLabel["text"] = this.Status.get()
 
 
 def plugin_start(plugin_dir):
@@ -93,7 +94,7 @@ def plugin_start(plugin_dir):
         this.TodayData = {}
         print("Tick auto reset happened")
     # create google sheet
-    google_sheet_int()
+    Google_sheet_int()
 
     return "BGS Tally v2"
 
@@ -115,96 +116,94 @@ def plugin_app(parent):
     """    Create a frame for the EDMC main window    """
     this.frame = tk.Frame(parent)
 
-    title = tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
-    title.grid(row=0, column=0, sticky=tk.W)
+    Title = tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
+    Title.grid(row=0, column=0, sticky=tk.W)
     if version_tuple(this.GitVersion) > version_tuple(this.VersionNo):
         title2 = tk.Label(this.frame, text="New version available", fg="blue", cursor="hand2")
-        title2.grid(row=0, column=1, sticky=tk.W, )
+        title2.grid(row=0, column=1, sticky=tk.W,)
         title2.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/tezw21/BGS-Tally/releases"))
 
     tk.Button(this.frame, text='Data Today', command=display_data).grid(row=1, column=0, padx=3)
     tk.Button(this.frame, text='Mission Log', command=display_MissionLog).grid(row=1, column=1, padx=3)
     tk.Label(this.frame, text="Status:").grid(row=2, column=0, sticky=tk.W)
     tk.Label(this.frame, text="Last Tick:").grid(row=3, column=0, sticky=tk.W)
-    this.Status_Label = tk.Label(this.frame, text=this.Status.get())
-    this.Status_Label.grid(row=2, column=1, sticky=tk.W)
+    this.StatusLabel = tk.Label(this.frame, text=this.Status.get())
+    this.StatusLabel.grid(row=2, column=1, sticky=tk.W)
     this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=3, column=1, sticky=tk.W)
 
     return this.frame
 
 
-def journal_entry(cmdr, is_beta, system, station, entry, State):
+def journal_entry(cmdr, is_beta, system, station, entry, state):
     if this.Status.get() != "Active":
         print('Paused')
         return
 
+    if entry['event'] == 'Docked':
 
-    if entry['event'] == 'FSDJump':  # get factions at jump or dock
-            this.StationFaction.set(entry['StationFaction']['Name'])  # set controlling faction name
-    elif entry['event'] == 'Docked':
-            this.StationFaction.set(entry['StationFaction']['Name'])  # set controlling faction name
-
+        this.StationFaction.set(entry['StationFaction']['Name'])  # set station controlling faction name
 
         #  tick check and counter reset
-            response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
-            tick = response.json()
-            this.CurrentTick = tick[0]['_id']
-            this.TickTime = tick[0]['time']
-            print(this.LastTick.get())
-            print(this.CurrentTick)
-            print(this.TickTime)
-            if this.LastTick.get() != this.CurrentTick:
-                this.LastTick.set(this.CurrentTick)
-                this.TodayData = {}
-                this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=3, column=1, sticky=tk.W)
-                theme.update(this.frame)
-                print("Tick auto reset happened")
+        response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
+        tick = response.json()
+        this.CurrentTick = tick[0]['_id']
+        this.TickTime = tick[0]['time']
+        print(this.LastTick.get())
+        print(this.CurrentTick)
+        print(this.TickTime)
+        if this.LastTick.get() != this.CurrentTick:
+            this.LastTick.set(this.CurrentTick)
+            this.TodayData = {}
+            this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=3, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            print("Tick auto reset happened")
         # set up new sheet at tick reset
-            google_sheet_int()
-        # today data creation
-            x = len(this.TodayData)
-            if x >= 1:
-                for y in range(1, x + 1):
-                    if entry['StarSystem'] == this.TodayData[y][0]['System']:
-                        this.DataIndex.set(y)
-                        print('system in data')
-
-                        sheet_insert_new_system(y)
-                        return
-            this.TodayData[x + 1] = [
-                {'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]
-            this.DataIndex.set(x + 1)
+        Google_sheet_int()
+        # TodayData creation
+        x = len(this.TodayData)
+        if (x >= 1):
+            for y in range(1, x+1):
+                if entry['StarSystem'] == this.TodayData[y][0]['System']:
+                    this.DataIndex.set(y)
+                    print('system in data')
+                    print(this.DataIndex.get())
+                    Sheet_Insert_New_System(y)
+                    return
+        this.TodayData[x+1] = [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]
+        this.DataIndex.set(x+1)
+        z = len(this.FactionNames)
+        for i in range(0, z):
+            inf = this.FactionStates['Factions'][i]['Influence'] * 100
+            inf = round(inf, 2)
+            this.TodayData[x+1][0]['Factions'].append({'Faction': this.FactionNames[i], 'INF': inf, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0, 'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
+        else:
+            this.TodayData = {1: [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]}
             z = len(this.FactionNames)
+            this.DataIndex.set(1)
             for i in range(0, z):
-                this.TodayData[x + 1][0]['Factions'].append(
-                    {'Faction': this.FactionNames[i], 'INF': 0, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0,
-                     'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
-            else:
-                this.TodayData = {
-                    1: [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]}
-                z = len(this.FactionNames)
-                this.DataIndex.set(1)
-                for i in range(0, z):
-                    this.TodayData[1][0]['Factions'].append(
-                        {'Faction': this.FactionNames[i], 'INF': 0, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0,
-                        'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
-            sheet_insert_new_system(x+1)
+                inf = this.FactionStates['Factions'][i]['Influence'] * 100
+                inf = round(inf, 2)
+                this.TodayData[1][0]['Factions'].append({'Faction': this.FactionNames[i], 'INF': inf, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0, 'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
+        Sheet_Insert_New_System(x+1)
 
     if entry['event'] == 'Location':  # get factions at startup
         this.FactionNames = []
-        this.FactionStates = {'Factions' : []}
+        this.FactionStates = {'Factions': []}
         z = 0
         for i in entry['Factions']:
             if i['Name'] != "Pilots' Federation Local Branch":
                 this.FactionNames.append(i['Name'])
-                this.FactionStates['Factions'].append({'Faction': i['Name'], 'Happiness': i['Happiness_Localised'], 'States': []})
+                # get faction States and Influence
+                this.FactionStates['Factions'].append({'Faction': i['Name'],
+                                                      'Influence': i['Influence'],
+                                                       'States': []})
 
                 try:
                     for x in i['ActiveStates']:
                         this.FactionStates['Factions'][z]['States'].append({'State': x['State']})
                 except KeyError:
                     this.FactionStates['Factions'][z]['States'].append({'State': 'None'})
-                z+=1
+                z += 1
 
     if entry['event'] == 'FSDJump':  # get factions at jump
         this.FactionNames = []
@@ -214,7 +213,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
             if i['Name'] != "Pilots' Federation Local Branch":
                 this.FactionNames.append(i['Name'])
                 this.FactionStates['Factions'].append(
-                    {'Faction': i['Name'], 'Happiness': i['Happiness_Localised'], 'States': []})
+                    {'Faction': i['Name'], 'Influence': i['Influence'],
+                     'States': []})
 
                 try:
                     for x in i['ActiveStates']:
@@ -222,48 +222,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 except KeyError:
                     this.FactionStates['Factions'][z]['States'].append({'State': 'None'})
                 z += 1
-
-    if entry['event'] == 'FSDJUMP':  # get factions influence value
-        fe = entry['Factions']
-        print("jump completed")
-        for i in fe:
-            fe3 = i['Faction']
-            print(fe3)
-            fe4 = i['Influence']
-            for x in fe4:
-                fe6 = x['SystemAddress']
-                inf = len(x['Influence'])
-                for y in this.TodayData:
-                    if fe6 == this.TodayData[y][0]['SystemAddress']:
-                        t = len(this.TodayData[y][0]['Factions'])
-                        system = this.TodayData[y][0]['System']
-
-                    for z in range(0, t):
-                        if fe3 == this.TodayData[y][0]['Factions'][z]['Faction']:
-                            this.TodayData[y][0]['Factions'][z]['INF'] += inf
-                            Sheet_Commit_Data(system, z, 'INF', inf)
-        save_data()
-
-    if entry['event'] == 'FSDJUMP':  # get factions State
-        fe = entry['Factions']
-        print("jump completed")
-        for i in fe:
-            fe3 = i['Faction']
-            print(fe3)
-            fe4 = i['FactionState']
-            for x in fe4:
-                fe6 = x['SystemAddress']
-                inf = len(x['FactionState'])
-                for y in this.TodayData:
-                    if fe6 == this.TodayData[y][0]['SystemAddress']:
-                        t = len(this.TodayData[y][0]['Factions'])
-                        system = this.TodayData[y][0]['System']
-
-                    for z in range(0, t):
-                        if fe3 == this.TodayData[y][0]['Factions'][z]['Faction']:
-                            this.TodayData[y][0]['Factions'][z]['State'] += inf
-                            Sheet_Commit_Data(system, z, 'State', data)
-        save_data()
 
     if entry['event'] == 'CommitCrime' and entry['CrimeType'] == 'murder':  # crime murder needs tested
         t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
@@ -347,8 +305,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
         save_data()
 
 
-
-
 def version_tuple(version):
     try:
         ret = tuple(map(int, version.split(".")))
@@ -369,7 +325,7 @@ def human_format(num):
 def display_data():
     form = tk.Toplevel(this.frame)
     form.title("BGS Tally v" + this.VersionNo + " - Data Today")
-    form.geometry("1000x560")
+    form.geometry("1250x560")
     # tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
 
     tab_parent = ttk.Notebook(form)
@@ -377,49 +333,49 @@ def display_data():
     for i in this.TodayData:
         tab = ttk.Frame(tab_parent)
         tab_parent.add(tab, text=this.TodayData[i][0]['System'])
-        factionLabel = tk.Label(tab, text="Faction")
-        infLabel = tk.Label(tab, text="INF")
-        stLabel = tk.Label(tab, text="State")
-        mpLabel = tk.Label(tab, text="Mission Points")
-        mfLabel = tk.Label(tab, text="Mission Failed")
-        tpLabel = tk.Label(tab, text="Trade Profit")
-        bountyLabel = tk.Label(tab, text="Bounties")
-        bondLabel = tk.Label(tab, text="Bonds")
-        cdLabel = tk.Label(tab, text="Cart Data")
-        cmLabel = tk.Label(tab, text="Murders")
+        FactionLabel = tk.Label(tab, text="Faction")
+        INFLabel = tk.Label(tab, text="INF")
+        STLabel = tk.Label(tab, text="State")
+        MPLabel = tk.Label(tab, text="Mission Points")
+        MFLabel = tk.Label(tab, text="Mission Failed")
+        TPLabel = tk.Label(tab, text="Trade Profit")
+        BountyLabel = tk.Label(tab, text="Bounties")
+        BondLabel = tk.Label(tab, text="Bonds")
+        CDLabel = tk.Label(tab, text="Cart Data")
+        CMLabel = tk.Label(tab, text="Murders")
 
-        factionLabel.grid(row=0, column=0)
-        infLabel.grid(row=0, column=1)
-        stLabel.grid(row=0, column=2)
-        mpLabel.grid(row=0, column=3, )
-        mfLabel.grid(row=0, column=4)
-        tpLabel.grid(row=0, column=5)
-        bountyLabel.grid(row=0, column=6)
-        bondLabel.grid(row=0, column=7)
-        cdLabel.grid(row=0, column=8)
-        cmLabel.grid(row=0, column=9)
+        FactionLabel.grid(row=0, column=0)
+        INFLabel.grid(row=0, column=1)
+        STLabel.grid(row=0, column=2)
+        MPLabel.grid(row=0, column=3, )
+        MFLabel.grid(row=0, column=4)
+        TPLabel.grid(row=0, column=5)
+        BountyLabel.grid(row=0, column=6)
+        BondLabel.grid(row=0, column=7)
+        CDLabel.grid(row=0, column=8)
+        CMLabel.grid(row=0, column=9)
         z = len(this.TodayData[i][0]['Factions'])
         for x in range(0, z):
-            factionname = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['Faction'])
-            factionname.grid(row=x + 1, column=0, sticky=tk.W)
-            inf = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['INF'])
-            inf.grid(row=x + 1, column=1)
+            FactionName = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['Faction'])
+            FactionName.grid(row=x + 1, column=0, sticky=tk.W)
+            INF = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['INF'])
+            INF.grid(row=x + 1, column=1)
             State = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['State'])
             State.grid(row=x + 1, column=2)
-            missions = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['MissionPoints'])
-            missions.grid(row=x + 1, column=3)
-            missionsf = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['MissionFailed'])
-            missionsf.grid(row=x + 1, column=4)
-            trade = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['TradeProfit']))
-            trade.grid(row=x + 1, column=5)
-            bounty = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['Bounties']))
-            bounty.grid(row=x + 1, column=6)
-            bonds = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['Bonds']))
-            bonds.grid(row=x + 1, column=7)
-            cartdata = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['CartData']))
-            cartdata.grid(row=x + 1, column=8)
-            murders = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['Murders']))
-            murders.grid(row=x + 1, column=9)
+            Missions = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['MissionPoints'])
+            Missions.grid(row=x + 1, column=3)
+            MissionsF = tk.Label(tab, text=this.TodayData[i][0]['Factions'][x]['MissionFailed'])
+            MissionsF.grid(row=x + 1, column=4)
+            Trade = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['TradeProfit']))
+            Trade.grid(row=x + 1, column=5)
+            Bounty = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['Bounties']))
+            Bounty.grid(row=x + 1, column=6)
+            Bonds = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['Bonds']))
+            Bonds.grid(row=x + 1, column=7)
+            CartData = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['CartData']))
+            CartData.grid(row=x + 1, column=8)
+            Murders = tk.Label(tab, text=human_format(this.TodayData[i][0]['Factions'][x]['Murders']))
+            Murders.grid(row=x + 1, column=9)
     tab_parent.pack(expand=1, fill='both')
 
 
@@ -433,13 +389,13 @@ def display_MissionLog():
     for i in this.MissionLog:
         tab = ttk.Frame(tab_parent)
         tab_parent.add(tab, text=this.MissionLog[i][0]['System'])
-        factionLabel = tk.Label(tab, text="Faction")
-        miLabel = tk.Label(tab, text="Mission INF")
-        mdLabel = tk.Label(tab, text="Mission ID")
+        factionlabel = tk.Label(tab, text="Faction")
+        milabel = tk.Label(tab, text="Mission INF")
+        mdlabel = tk.Label(tab, text="Mission ID")
 
-        factionLabel.grid(row=0, column=0)
-        miLabel.grid(row=0, column=1, )
-        mdLabel.grid(row=0, column=2)
+        factionlabel.grid(row=0, column=0)
+        milabel.grid(row=0, column=1, )
+        mdlabel.grid(row=0, column=2)
         z = len(this.MissionLog[i][0]['Factions'])
         for x in range(0, z):
             factionname = tk.Label(tab, text=this.MissionLog[i][0]['Factions'][x]['Faction'])
@@ -451,8 +407,8 @@ def display_MissionLog():
     tab_parent.pack(expand=1, fill='both')
 
 
-def tick_format(TickTime):
-    datetime1 = TickTime.split('T')
+def tick_format(ticktime):
+    datetime1 = ticktime.split('T')
     x = datetime1[0]
     z = datetime1[1]
     y = x.split('-')
@@ -483,26 +439,26 @@ def tick_format(TickTime):
     date1 = y[2] + " " + month
     time1 = z[0:5]
     datetimetick = time1 + ' UTC ' + date1
-    return datetimetick
+    return (datetimetick)
 
 
 def save_data():
     config.set('XLastTick', this.CurrentTick)
     config.set('XTickTime', this.TickTime)
     config.set('XStatus', this.Status.get())
-    config.set('XIndex', this.DataIndex.get())
+    config.set('xIndex', this.DataIndex.get())
     config.set('XStation', this.StationFaction.get())
 
     file = os.path.join(this.Dir, "Today Data.txt")
     with open(file, 'w') as outfile:
         json.dump(this.TodayData, outfile)
 
-    file = os.path.join(this.Dir, "MissionLog.txt")
+    file = os.path.join(this.Dir, "Mission Log.txt")
     with open(file, 'w') as outfile:
         json.dump(this.MissionLog, outfile)
 
 
-def google_sheet_int():
+def Google_sheet_int():
     # start google sheet data store
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
@@ -515,18 +471,21 @@ def google_sheet_int():
         set_column_width(worksheet, 'A', 300)
 
 
-def sheet_insert_new_system(index):
+def Sheet_Insert_New_System(index):
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
     worksheet = sh.worksheet(this.TickTime)
-    factionname = []
-    system = this.TodayData[index][0]['System']
+    FactionName = []
+    FactionINF = []
+    system = this.TodayData[this.DataIndex.get()][0]['System']
+
     try:
         cell = worksheet.find(system)
     except gspread.exceptions.CellNotFound:
-        z = len(this.TodayData[index][0]['Factions'])
+        z = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
         for x in range(0, z):
-            factionname.append([this.TodayData[index][0]['Factions'][x]['Faction']])
+            FactionName.append([this.TodayData[this.DataIndex.get()][0]['Factions'][x]['Faction']])
+            FactionINF.append([this.TodayData[this.DataIndex.get()][0]['Factions'][x]['INF']])
         no_of_systems = int(worksheet.acell('B1').value)
         if no_of_systems == 0:
             no_of_systems += 1
@@ -534,81 +493,84 @@ def sheet_insert_new_system(index):
             # worksheet.update('A2:J3', [['System', system],['Faction', 'Mission +', 'Trade', 'Bounties',
             # 'Carto Data']])
             worksheet.batch_update([{'range': 'A2:J3', 'values': [['System', system],
-                                                                  ['Faction', 'INF', 'State' 'Mission +',
+                                                                  ['Faction', 'INF', 'State', 'Mission +',
                                                                    'Mission Failed', 'Trade', 'Bounties', 'Bonds',
                                                                    'Carto Data', 'Murders']]},
-                                    {'range': 'A4:A11', 'values': factionname},
-                                    {'range': 'B4:J11',
-                                     'values': [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]]}])
+                                    {'range': 'A4:A11', 'values': FactionName},
+                                    {'range': 'B4:B11', 'values': FactionINF},
+                                    {'range': 'C4:J11',
+                                     'values': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]}])
         else:
             row = no_of_systems * 11 + 2
             no_of_systems += 1
             worksheet.update('B1', no_of_systems)
             range1 = 'A' + str(row) + ':J' + str(row + 1)
             range2 = 'A' + str(row + 2) + ':A' + str(row + 10)
-            range3 = 'B' + str(row + 2) + ':J' + str(row + 10)
+            range3 = 'B' + str(row + 2) + ':B' + str(row + 10)
+            range4 = 'C' + str(row + 2) + ':J' + str(row + 10)
             worksheet.batch_update([{'range': range1, 'values': [['System', system],
                                                                  ['Faction', 'INF', 'State', 'Mission +',
                                                                   'Mission Failed', 'Trade', 'Bounties', 'Bonds',
                                                                   'Carto Data', 'Murders']]},
-                                    {'range': range2, 'values': factionname},
-                                    {'range': range3,
-                                     'values': [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]]}])
+                                    {'range': range2, 'values': FactionName},
+                                    {'range': range3, 'values': FactionINF},
+                                    {'range': range4,
+                                     'values': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]}])
 
 
-def sheet_commit_data(system, index, event, data):
+def Sheet_Commit_Data(system, index, event, data):
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
     worksheet = sh.worksheet(this.TickTime)
     cell1 = worksheet.find(system)
-    factionrow = cell1.row + 2 + index
+    FactionRow = cell1.row + 2 + index
     if event == "INF":
-        cell = worksheet.cell(factionrow, 2).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 2, total)
+        cell = worksheet.cell(FactionRow, 2).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 2, Total)
 
     if event == "State":
-        cell = worksheet.cell(factionrow, 3).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 3, total)
+        cell = worksheet.cell(FactionRow, 3).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 3, Total)
 
     if event == "Mission":
-        cell = worksheet.cell(factionrow, 4).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 4, total)
+        cell = worksheet.cell(FactionRow, 4).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 4, Total)
 
     if event == "MissionFailed":
-        cell = worksheet.cell(factionrow, 5).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 5, total)
+        cell = worksheet.cell(FactionRow, 5).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 5, Total)
 
     if event == "Trade":
-        cell = worksheet.cell(factionrow, 6).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 6, total)
+        cell = worksheet.cell(FactionRow, 6).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 6, Total)
 
     if event == "Bounty":
-        cell = worksheet.cell(factionrow, 7).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 7, total)
+        cell = worksheet.cell(FactionRow, 7).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 7, Total)
 
     if event == "Bonds":
-        cell = worksheet.cell(factionrow, 8).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 8, total)
+        cell = worksheet.cell(FactionRow, 8).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 8, Total)
 
     if event == "Expo":
-        cell = worksheet.cell(factionrow, 9).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 9, total)
+        cell = worksheet.cell(FactionRow, 9).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 9, Total)
 
     if event == "Murders":
-        cell = worksheet.cell(factionrow, 10).value
-        total = int(cell) + data
-        worksheet.update_cell(factionrow, 10, total)
+        cell = worksheet.cell(FactionRow, 10).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 10, Total)
