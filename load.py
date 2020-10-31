@@ -21,7 +21,7 @@ except ModuleNotFoundError:
     from tkinter import ttk
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.1.1"
+this.VersionNo = "3.0.2"
 this.FactionNames = []
 this.TodayData = {}
 this.MissionLog = {}
@@ -142,22 +142,9 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
     if entry['event'] == 'Docked':
         this.StationFaction.set(entry['StationFaction']['Name'])  # set station controlling faction name
 
-        #  tick check and counter reset
-        response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
-        tick = response.json()
-        this.CurrentTick = tick[0]['_id']
-        this.TickTime = tick[0]['time']
-        print(this.TickTime)
-        if this.LastTick.get() != this.CurrentTick:
-            this.LastTick.set(this.CurrentTick)
-            this.TodayData = {}
-            this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=3, column=1, sticky=tk.W)
-            theme.update(this.frame)
-            print("Tick auto reset happened")
-            # set up new sheet at tick reset
-        google_sheet_int()
+
         # today data creation
-        x = len(this.TodayData)
+        '''x = len(this.TodayData)
         if x >= 1:
             for y in range(1, x + 1):
                 if entry['StarSystem'] == this.TodayData[y][0]['System']:
@@ -185,41 +172,108 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                     {'Faction': this.FactionNames[i], 'INF': inf, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0,
                     'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
         sheet_insert_new_system(x+1)
+'''
+    if entry['event'] == 'Location':
+        '''get factions at startup, don't need tick test as already done on plugin start, write to today data'''
+            # today data creation
+        x = len(this.TodayData)
+        if x >= 1:
+            for y in range(1, x + 1):
+                if entry['StarSystem'] == this.TodayData[y][0]['System']:
+                    this.DataIndex.set(y)
+                    print('system in data')
+                    sheet_insert_new_system(y)
+                    return
+            this.TodayData[x + 1] = [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]
+            this.DataIndex.set(x + 1)
 
-    if entry['event'] == 'Location':  # get factions at startup
-        this.FactionNames = []
-        this.FactionStates = {'Factions' : []}
-        z = 0
-        for i in entry['Factions']:
-            if i['Name'] != "Pilots' Federation Local Branch":
-                this.FactionNames.append(i['Name'])
-                # get faction states and Influence
-                this.FactionStates['Factions'].append({'Faction': i['Name'], 'Influence' : i['Influence'],
-                                                       'Happiness': i['Happiness_Localised'], 'States': []})
+            for i in entry['Factions']:
+                if i['Name'] != "Pilots' Federation Local Branch":
+                    inf = i['Influence'] * 100
+                    inf = round(inf, 2)
+                    state = ''
+                    try:
+                        for z in i['ActiveStates']:
+                            state =  state + z['State'] + ' '
+                    except KeyError:
+                        state = 'None'
 
-                try:
-                    for x in i['ActiveStates']:
-                        this.FactionStates['Factions'][z]['States'].append({'State': x['State']})
-                except KeyError:
-                    this.FactionStates['Factions'][z]['States'].append({'State': 'None'})
-                z += 1
+                    this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,'MissionPoints': 0,'MissionFailed': 0,'TradeProfit': 0,'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
+        else:
+            this.TodayData = {1: [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]}
+            this.DataIndex.set(1)
+            for i in entry['Factions']:
+                if i['Name'] != "Pilots' Federation Local Branch":
+                    inf = i['Influence'] * 100
+                    inf = round(inf, 2)
+                    state = ''
+                    try:
+                        for z in i['ActiveStates']:
+                            state = state + z['State'] + ' '
+                    except KeyError:
+                        state = 'None'
 
-    if entry['event'] == 'FSDJump':  # get factions at jump
-        this.FactionNames = []
-        this.FactionStates = {'Factions': []}
-        z = 0
-        for i in entry['Factions']:
-            if i['Name'] != "Pilots' Federation Local Branch":
-                this.FactionNames.append(i['Name'])
-                this.FactionStates['Factions'].append({'Faction': i['Name'], 'Influence': i['Influence'],
-                                                       'Happiness': i['Happiness_Localised'], 'States': []})
+                    this.TodayData[1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,'MissionPoints': 0,'MissionFailed': 0,'TradeProfit': 0,'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
 
-                try:
-                    for x in i['ActiveStates']:
-                        this.FactionStates['Factions'][z]['States'].append({'State': x['State']})
-                except KeyError:
-                    this.FactionStates['Factions'][z]['States'].append({'State': 'None'})
-                z += 1
+        sheet_insert_new_system(x + 1) # insert data into google sheet
+
+    if entry['event'] == 'FSDJump':  # get factions at jump, load into today data, check tick and reset if needed
+        #  tick check and counter reset
+        response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
+        tick = response.json()
+        this.CurrentTick = tick[0]['_id']
+        this.TickTime = tick[0]['time']
+        print(this.TickTime)
+        if this.LastTick.get() != this.CurrentTick:
+            this.LastTick.set(this.CurrentTick)
+            this.TodayData = {}
+            this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=3, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            print("Tick auto reset happened")
+            # set up new sheet at tick reset
+        google_sheet_int()
+           # today data creation
+        x = len(this.TodayData)
+        if x >= 1:
+            for y in range(1, x + 1):
+                if entry['StarSystem'] == this.TodayData[y][0]['System']:
+                    this.DataIndex.set(y)
+                    print('system in data')
+                    sheet_insert_new_system(y)
+                    return
+            this.TodayData[x + 1] = [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]
+            this.DataIndex.set(x + 1)
+
+            for i in entry['Factions']:
+                if i['Name'] != "Pilots' Federation Local Branch":
+                    inf = i['Influence'] * 100
+                    inf = round(inf, 2)
+                    state = ''
+                    try:
+                        for z in i['ActiveStates']:
+                            state =  state + z['State'] + ' '
+                    except KeyError:
+                        state = 'None'
+
+                    this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,'MissionPoints': 0,'MissionFailed': 0,'TradeProfit': 0,'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
+        else:
+            this.TodayData = {1: [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]}
+            this.DataIndex.set(1)
+            for i in entry['Factions']:
+                if i['Name'] != "Pilots' Federation Local Branch":
+                    inf = i['Influence'] * 100
+                    inf = round(inf, 2)
+                    state = ''
+                    try:
+                        for z in i['ActiveStates']:
+                            state = state + z['State'] + ' '
+                    except KeyError:
+                        state = 'None'
+
+                    this.TodayData[1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,'MissionPoints': 0,'MissionFailed': 0,'TradeProfit': 0,'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
+
+        sheet_insert_new_system(x + 1) # insert data into google sheet
+
 
     if entry['event'] == 'CommitCrime' and entry['CrimeType'] == 'murder':  # crime murder needs tested
         t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
@@ -477,6 +531,7 @@ def sheet_insert_new_system(index):
     worksheet = sh.worksheet(this.TickTime)
     factionname = []
     factioninf = []
+    factionstate = []
     system = this.TodayData[index][0]['System']
     try:
         cell = worksheet.find(system)
@@ -485,6 +540,7 @@ def sheet_insert_new_system(index):
         for x in range(0, z):
             factionname.append([this.TodayData[index][0]['Factions'][x]['Faction']])
             factioninf.append([this.TodayData[index][0]['Factions'][x]['INF']])
+            factionstate.append([this.TodayData[index][0]['Factions'][x]['State']])
         no_of_systems = int(worksheet.acell('B1').value)
         if no_of_systems == 0:
             no_of_systems += 1
@@ -497,11 +553,12 @@ def sheet_insert_new_system(index):
                                                                    'Carto Data', 'Murders']]},
                                     {'range': 'A4:A11', 'values': factionname},
                                     {'range' : 'B4:B11', 'values': factioninf},
-                                    {'range': 'C4:J11',
-                                     'values': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]}])
+                                    {'range' : 'C4:C11', 'values': factionstate},
+                                    {'range': 'D4:J11',
+                                     'values': [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]}])
         else:
             row = no_of_systems * 11 + 2
             no_of_systems += 1
@@ -509,18 +566,20 @@ def sheet_insert_new_system(index):
             range1 = 'A' + str(row) + ':J' + str(row + 1)
             range2 = 'A' + str(row + 2) + ':A' + str(row + 10)
             range3 = 'B' + str(row + 2) + ':B' + str(row + 10)
-            range4 = 'C' + str(row + 2) + ':J' + str(row + 10)
+            range4 = 'C' + str(row + 2) + ':C' + str(row + 10)
+            range5 = 'D' + str(row + 2) + ':J' + str(row + 10)
             worksheet.batch_update([{'range': range1, 'values': [['System', system],
                                                                  ['Faction', 'INF', 'State', 'Mission +',
                                                                   'Mission Failed', 'Trade', 'Bounties', 'Bonds',
                                                                   'Carto Data', 'Murders']]},
                                     {'range': range2, 'values': factionname},
                                     {'range': range3, 'values': factioninf},
-                                    {'range': range4,
-                                     'values': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]}])
+                                    {'range': range4, 'values': factionstate},
+                                    {'range': range5,
+                                     'values': [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                                                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]}])
 
 
 def sheet_commit_data(system, index, event, data):
