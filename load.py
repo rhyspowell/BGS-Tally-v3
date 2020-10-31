@@ -154,7 +154,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
             this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=3, column=1, sticky=tk.W)
             theme.update(this.frame)
             print("Tick auto reset happened")
-        # set up new sheet at tick reset
+            # set up new sheet at tick reset
         google_sheet_int()
         # today data creation
         x = len(this.TodayData)
@@ -165,15 +165,15 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                     print('system in data')
                     sheet_insert_new_system(y)
                     return
-        this.TodayData[x + 1] = [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]
-        this.DataIndex.set(x + 1)
-        z = len(this.FactionNames)
-        for i in range(0, z):
-            inf = this.FactionStates['Factions'][i]['Influence'] * 100
-            inf = round(inf, 2)
-            this.TodayData[x + 1][0]['Factions'].append(
-                {'Faction': this.FactionNames[i], 'INF': inf, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0,
-                'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
+            this.TodayData[x + 1] = [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]
+            this.DataIndex.set(x + 1)
+            z = len(this.FactionNames)
+            for i in range(0, z):
+                inf = this.FactionStates['Factions'][i]['Influence'] * 100
+                inf = round(inf, 2)
+                this.TodayData[x + 1][0]['Factions'].append(
+                    {'Faction': this.FactionNames[i], 'INF': inf, 'State': 0, 'MissionPoints': 0, 'MissionFailed': 0,
+                    'TradeProfit': 0, 'Bounties': 0, 'Bonds': 0, 'CartData': 0, 'Murders': 0})
         else:
             this.TodayData = {1: [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'], 'Factions': []}]}
             z = len(this.FactionNames)
@@ -202,19 +202,17 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                         this.FactionStates['Factions'][z]['States'].append({'State': x['State']})
                 except KeyError:
                     this.FactionStates['Factions'][z]['States'].append({'State': 'None'})
-                z+=1
+                z += 1
 
     if entry['event'] == 'FSDJump':  # get factions at jump
-        pprint('FSDJump', entry)
         this.FactionNames = []
         this.FactionStates = {'Factions': []}
         z = 0
         for i in entry['Factions']:
             if i['Name'] != "Pilots' Federation Local Branch":
                 this.FactionNames.append(i['Name'])
-                this.FactionStates['Factions'].append(
-                    {'Faction': i['Name'], 'Influence': i['Influence'], 'Happiness': i['Happiness_Localised'],
-                     'States': []})
+                this.FactionStates['Factions'].append({'Faction': i['Name'], 'Influence': i['Influence'],
+                                                       'Happiness': i['Happiness_Localised'], 'States': []})
 
                 try:
                     for x in i['ActiveStates']:
@@ -250,10 +248,10 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                         t = len(this.TodayData[y][0]['Factions'])
                         system = this.TodayData[y][0]['System']
 
-                    for z in range(0, t):
-                        if fe3 == this.TodayData[y][0]['Factions'][z]['Faction']:
-                            this.TodayData[y][0]['Factions'][z]['MissionPoints'] += inf
-                            sheet_commit_data(system, z, 'Mission', inf)
+                        for z in range(0, t):
+                            if fe3 == this.TodayData[y][0]['Factions'][z]['Faction']:
+                                this.TodayData[y][0]['Factions'][z]['MissionPoints'] += inf
+                                sheet_commit_data(system, z, 'Mission', inf)
         save_data()
 
     if entry['event'] == 'SellExplorationData' or entry['event'] == "MultiSellExplorationData":  # get carto data value
