@@ -74,7 +74,7 @@ def plugin_start(plugin_dir):
     this.LastTick = tk.StringVar(value=config.get("XLastTick"))
     this.TickTime = tk.StringVar(value=config.get("XTickTime"))
     this.Status = tk.StringVar(value=config.get("XStatus"))
-    this.DataIndex = tk.IntVar(value=config.get("xIndex"))
+    this.DataIndex = tk.IntVar(value=config.get("XIndex"))
     this.StationFaction = tk.StringVar(value=config.get("XStation"))
 
     # this.LastTick.set("12")
@@ -282,7 +282,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 if z['Faction'] == this.TodayData[this.DataIndex.get()][0]['Faction'][x]['Faction']:
                     this.TodayData[this.DataIndex.get()][0]['Faction'][x]['Murders'] += 1
                     system = this.TodayData[this.DataIndex.get()][0]['System']
-                    index = this.DataIndex.get()
+                    index = x
                     data = 1
                     sheet_commit_data(system, index, 'Murders', data)
         save_data()
@@ -314,7 +314,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
             if this.StationFaction.get() == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
                 this.TodayData[this.DataIndex.get()][0]['Factions'][z]['CartData'] += entry['TotalEarnings']
                 system = this.TodayData[this.DataIndex.get()][0]['System']
-                index = this.DataIndex.get()
+                index = z
                 data = entry['TotalEarnings']
                 sheet_commit_data(system, index, 'Expo', data)
         save_data()
@@ -326,7 +326,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 if z['Faction'] == this.TodayData[this.DataIndex.get()][0]['Factions'][x]['Faction']:
                     this.TodayData[this.DataIndex.get()][0]['Factions'][x]['Bounties'] += z['Amount']
                     system = this.TodayData[this.DataIndex.get()][0]['System']
-                    index = this.DataIndex.get()
+                    index = x
                     data = z['Amount']
                     sheet_commit_data(system, index, 'Bounty', data)
         save_data()
@@ -338,7 +338,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 if z['Faction'] == this.TodayData[this.DataIndex.get()][0]['Factions'][x]['Faction']:
                     this.TodayData[this.DataIndex.get()][0]['Factions'][x]['Bonds'] += z['Amount']
                     system = this.TodayData[this.DataIndex.get()][0]['System']
-                    index = this.DataIndex.get()
+                    index = x
                     data = z['Amount']
                     sheet_commit_data(system, index, 'Bonds', data)
         save_data()
@@ -351,7 +351,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
                 profit = entry['TotalSale'] - cost
                 this.TodayData[this.DataIndex.get()][0]['Factions'][z]['TradeProfit'] += profit
                 system = this.TodayData[this.DataIndex.get()][0]['System']
-                index = this.DataIndex.get()
+                index = z
                 data = profit
                 sheet_commit_data(system, index, 'Trade', data)
         save_data()
