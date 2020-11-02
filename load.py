@@ -277,14 +277,13 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
 
     if entry['event'] == 'CommitCrime' and entry['CrimeType'] == 'murder':  # crime murder needs tested
         t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
-        for z in entry['Faction']:
-            for x in range(0, t):
-                if z['Faction'] == this.TodayData[this.DataIndex.get()][0]['Faction'][x]['Faction']:
-                    this.TodayData[this.DataIndex.get()][0]['Faction'][x]['Murders'] += 1
-                    system = this.TodayData[this.DataIndex.get()][0]['System']
-                    index = x
-                    data = 1
-                    sheet_commit_data(system, index, 'Murders', data)
+        for x in range(0, t):
+            if entry['Faction'] == this.TodayData[this.DataIndex.get()][0]['Faction'][x]['Faction']:
+                this.TodayData[this.DataIndex.get()][0]['Faction'][x]['Murders'] += 1
+                system = this.TodayData[this.DataIndex.get()][0]['System']
+                index = x
+                data = 1
+                sheet_commit_data(system, index, 'Murders', data)
         save_data()
 
     if entry['event'] == 'MissionCompleted':  # get mission influence value
