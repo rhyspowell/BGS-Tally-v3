@@ -23,9 +23,7 @@ this = sys.modules[__name__]  # For holding module globals
 this.VersionNo = "3.0.2"
 this.FactionNames = []
 this.TodayData = {}
-this.MissionLog = {}
 this.DataIndex = 0
-this.MissionIndex = 0
 this.Status = "Active"
 this.TickTime = ""
 this.State = tk.IntVar()
@@ -61,7 +59,6 @@ def plugin_start(plugin_dir):
     this.Dir = plugin_dir
     this.cred = os.path.join(this.Dir, "service_account.json")
     file = os.path.join(this.Dir, "Today Data.txt")
-    file = os.path.join(this.Dir, "MissionLog.txt")
 
     if path.exists(file):
         with open(file) as json_file:
@@ -76,9 +73,14 @@ def plugin_start(plugin_dir):
     this.TickTime = tk.StringVar(value=config.get("XTickTime"))
     this.Status = tk.StringVar(value=config.get("XStatus"))
     this.DataIndex = tk.IntVar(value=config.get("XIndex"))
-    this.MissionIndex = tk.IntVar(value=config.get("XMissionIndex"))
     this.StationFaction = tk.StringVar(value=config.get("XStation"))
     this.SystemFaction = tk.StringVar(value=config.get("XSystem"))
+    this.MasterPriority = tk.StringVar(value=config.get("XPriority"))
+    this.MasterFaction = tk.StringVar(value=config.get("XFaction"))
+    this.MasterWork = tk.StringVar(value=config.get("XWork"))
+    this.MasterGoal = tk.StringVar(value=config.get("XGoal"))
+    this.MasterCZFaction = tk.StringVar(value=config.get("XCZFaction"))
+    
 
     # this.LastTick.set("12")
 
@@ -127,32 +129,39 @@ def plugin_app(parent):
         title2.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/tezw21/BGS-Tally/releases"))
 
     tk.Button(this.frame, text='Data Today', command=display_data).grid(row=0, column=1, padx=3)
-    tk.Button(this.frame, text='Mission Log', command=display_MissionLog).grid(row=0, column=2, padx=3)
+    tk.Button(this.frame, text='Mission Log').grid(row=0, column=2, padx=3)
+
     tk.Label(this.frame, text="Status:").grid(row=1, column=0, sticky=tk.W)
+
     tk.Label(this.frame, text="Last Tick:").grid(row=2, column=0, sticky=tk.W)
-    this.Status_Label = tk.Label(this.frame, text=this.Status.get())
-    this.Status_Label.grid(row=1, column=1, sticky=tk.W)
+
+    this.Status_Label = tk.Label(this.frame, text=this.Status.get()).grid(row=1, column=1, sticky=tk.W)
+
     this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=2, column=1, sticky=tk.W)
+
     tk.Label(this.frame, text="Controlling Faction:").grid(row=3, column=0, sticky=tk.W)
-    this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get())
+    this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
     theme.update(this.frame)
-    this.Controlling_Label.grid(row=3, column=1, sticky=tk.W)
-    tk.Button(this.frame, text='CZ HIGH').grid(row=5, column=0, padx=3)  # add commands
-    tk.Button(this.frame, text='CZ MED').grid(row=5, column=1, padx=3)  # add commands
-    tk.Button(this.frame, text='CZ LOW').grid(row=5, column=2, padx=3)  # add commands
 
-    tk.Label(this.frame, text='Select Faction').grid(row=4, column=0)
-    faction_list = ["Unselected", "Faction1", "Faction2", "Faction3", "Faction4"]
+    tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
+    this.Priority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+    theme.update(this.frame)
+    tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
+    this.Priority_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+    theme.update(this.frame)
+    tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
+    this.Priority_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+    theme.update(this.frame)
+    tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
+    this.Priority_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+    theme.update(this.frame)
+    tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
+    this.Priority_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+    theme.update(this.frame)
 
-    options = tk.StringVar(this.frame)
-    options.set(faction_list[0])  # default value
-
-    tk.OptionMenu(this.frame, options, *faction_list).grid(row=4, column=1)
-
-    faction_selected = tk.StringVar(this.frame)
-    faction_selected.set(options)
-
-    tk.Label(this.frame, textvariable=options).grid(row=4, column=2)
+    tk.Button(this.frame, text='CZ HIGH').grid(row=10, column=0, padx=3)  # add commands
+    tk.Button(this.frame, text='CZ MED').grid(row=10, column=1, padx=3)  # add commands
+    tk.Button(this.frame, text='CZ LOW').grid(row=10, column=2, padx=3)  # add commands
 
     return this.frame
 
@@ -165,6 +174,21 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
     if entry['event'] == 'Docked':
         this.StationFaction.set(entry['StationFaction']['Name'])  # set station controlling faction name
         this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
         theme.update(this.frame)
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
@@ -254,6 +278,21 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
             this.SystemFaction.set('Unpopulated')
         this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
         theme.update(this.frame)
+        tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+        theme.update(this.frame)
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
         tick = response.json()
@@ -342,6 +381,21 @@ def journal_entry(cmdr, is_beta, system, station, entry, State):
         except KeyError:
             this.SystemFaction.set('Unpopulated')
         this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+        theme.update(this.frame)
+        tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
+        this.Priority_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
         theme.update(this.frame)
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
@@ -629,34 +683,6 @@ def display_data():
     tab_parent.pack(expand=1, fill='both')
 
 
-def display_MissionLog():
-    form = tk.Toplevel(this.frame)
-    form.title("BGS Tally v" + this.VersionNo + " - MissionLog")
-    form.geometry("1000x560")
-
-    tab_parent = ttk.Notebook(form)
-
-    for i in this.MissionLog:
-        tab = ttk.Frame(tab_parent)
-        tab_parent.add(tab, text=this.MissionLog[i][0]['System'])
-        factionLabel = tk.Label(tab, text="Faction")
-        miLabel = tk.Label(tab, text="Mission INF")
-        mdLabel = tk.Label(tab, text="Mission ID")
-
-        factionLabel.grid(row=0, column=0)
-        miLabel.grid(row=0, column=1, )
-        mdLabel.grid(row=0, column=2)
-        z = len(this.MissionLog[i][0]['Factions'])
-        for x in range(0, z):
-            factionname = tk.Label(tab, text=this.MissionLog[i][0]['Factions'][x]['Faction'])
-            factionname.grid(row=x + 1, column=0, sticky=tk.W)
-            missionsinf = tk.Label(tab, text=this.MissionLog[i][0]['Factions'][x]['MissionINF'])
-            missionsinf.grid(row=x + 1, column=1)
-            missionsid = tk.Label(tab, text=this.MissionLog[i][0]['Factions'][x]['MissionID'])
-            missionsid.grid(row=x + 1, column=2)
-    tab_parent.pack(expand=1, fill='both')
-
-
 def tick_format(TickTime):
     datetime1 = TickTime.split('T')
     x = datetime1[0]
@@ -699,14 +725,17 @@ def save_data():
     config.set('XIndex', this.DataIndex.get())
     config.set('XStation', this.StationFaction.get())
     config.set('XSystem', this.SystemFaction.get())
+    config.set('XPriority', this.MasterPriority.get())
+    config.set('XFaction', this.MasterFaction.get())
+    config.set('XWork', this.MasterWork.get())
+    config.set('XGoal', this.MasterGoal.get())
+    config.set('XCZFaction', this.MasterCZFaction.get())
 
     file = os.path.join(this.Dir, "Today Data.txt")
     with open(file, 'w') as outfile:
         json.dump(this.TodayData, outfile)
 
-    file = os.path.join(this.Dir, "MissionLog.txt")
-    with open(file, 'w') as outfile:
-        json.dump(this.MissionLog, outfile)
+        
 
 
 def google_sheet_int():
@@ -875,3 +904,34 @@ def sheet_commit_data(system, index, event, data):
         cell = worksheet.cell(factionrow, 16).value
         total = int(cell) + data
         worksheet.update_cell(factionrow, 16, total)
+
+
+def sheet_pull_master_data(system, index, event):
+    gc = gspread.service_account(filename=this.cred)
+    sh = gc.open("BSG Tally Store")
+    worksheet = sh.worksheet(Master)
+    system = this.TodayData[index][0]['System']
+    cell1 = worksheet.find(system)
+    systemrow = cell1.row
+    values_list = worksheet.row_values(systemrow)
+    if entry['event'] == 'FSDJump' or entry['event'] == 'Location' or entry['event'] == 'Docked':
+        try :
+            this.MasterPriority.set(worksheet.cell(systemrow, 2).value)
+        except KeyError:
+            this.MasterPriority.set('None')
+        try :
+            this.MasterFaction.set(worksheet.cell(systemrow, 3).value)
+        except KeyError:
+            this.MasterFaction.set('None')
+        try :
+            this.MasterWork.set(worksheet.cell(systemrow, 4).value)
+        except KeyError:
+            this.MasterWork.set('None')
+        try :
+            this.MasterGoal.set(worksheet.cell(systemrow, 5).value)
+        except KeyError:
+            this.MasterGoal.set('None')
+        try :
+            this.MasterCZFaction.set(worksheet.cell(systemrow, 6).value)
+        except KeyError:
+            this.MasterCZFaction.set('None')
