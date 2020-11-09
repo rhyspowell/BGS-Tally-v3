@@ -78,7 +78,6 @@ def plugin_start(plugin_dir):
     this.MasterWork = tk.StringVar(value=config.get("XWork"))
     this.MasterGoal = tk.StringVar(value=config.get("XGoal"))
     this.MasterCZFaction = tk.StringVar(value=config.get("XCZFaction"))
-    
 
     # this.LastTick.set("12")
 
@@ -171,92 +170,24 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
 
     if entry['event'] == 'Docked':
         this.StationFaction.set(entry['StationFaction']['Name'])  # set station controlling faction name
-        #  tick check and counter reset
-        response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
-        tick = response.json()
-        this.CurrentTick = tick[0]['_id']
-        this.TickTime = tick[0]['time']
-        print(this.TickTime)
-        if this.LastTick.get() != this.CurrentTick:
-            this.LastTick.set(this.CurrentTick)
-            this.TodayData = {}
-            this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=2, column=1, sticky=tk.W)
-            theme.update(this.frame)
-            print("Tick auto reset happened")
-            # set up new sheet at tick reset
-        google_sheet_int()
-        # today data creation
-        x = len(this.TodayData)
-        if x >= 1:
-            for y in range(1, x + 1):
-                if entry['StarSystem'] == this.TodayData[y][0]['System']:
-                    this.DataIndex.set(y)
-                    print('system in data')
-                    sheet_insert_new_system(y)
-                    return
-            this.TodayData[x + 1] = [{'System': entry['StarSystem'], 'SystemAddress': entry['SystemAddress'],
-                                      'Factions': []}]
-            this.DataIndex.set(x + 1)
-
-            for i in entry['Factions']:
-                if i['Name'] != "Pilots' Federation Local Branch":
-                    inf = i['Influence'] * 100
-                    inf = round(inf, 2)
-                    state = ''
-                    pendingstate = ''
-                    try:
-                        for z in i['ActiveStates']:
-                            state = state + z['State'] + ' '
-                    except KeyError:
-                        state = 'None'
-                    try:
-                        for z in i['PendingStates']:
-                            pendingstate = pendingstate + z['State'] + ' '
-                    except KeyError:
-                        pendingstate = 'None'
-
-                    this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
-                                                                 'PendingState': pendingstate, 'Bounties': 0,
-                                                                 'Bonds': 0,  'TradeProfit': 0, 'BMProfit': 0,
-                                                                 'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
-                                                                 'Murders': 0, 'Fines&Bounties': 0, 'CZ High': 0, 'CZ Med': 0,
-                                                                 'CZ Low': 0})
-        else:
-            this.TodayData = {1: [{'System': entry['StarSystem'],
-                                   'SystemAddress': entry['SystemAddress'], 'Factions': []}]}
-            this.DataIndex.set(1)
-            for i in entry['Factions']:
-                if i['Name'] != "Pilots' Federation Local Branch":
-                    inf = i['Influence'] * 100
-                    inf = round(inf, 2)
-                    state = ''
-                    pendingstate = ''
-                    try:
-                        for z in i['ActiveStates']:
-                            state = state + z['State'] + ' '
-                    except KeyError:
-                        state = 'None'
-                    try:
-                        for z in i['PendingStates']:
-                            pendingstate = pendingstate + z['State'] + ' '
-                    except KeyError:
-                        pendingstate = 'None'
-
-                    this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
-                                                                 'PendingState': pendingstate, 'Bounties': 0,
-                                                                 'Bonds': 0,  'TradeProfit': 0, 'BMProfit': 0,
-                                                                 'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
-                                                                 'Murders': 0, 'Fines&Bounties': 0, 'CZ High': 0, 'CZ Med': 0,
-                                                                 'CZ Low': 0})
-
-        sheet_insert_new_system(x + 1)  # insert data into google sheet
-
 
     if entry['event'] == 'Location':
-        try :
+        try:
             this.SystemFaction.set(entry['SystemFaction']['Name'])
         except KeyError:
             this.SystemFaction.set('Unpopulated')
+        
+        gc = gspread.service_account(filename=this.cred)
+        sh = gc.open("BSG Tally Store")
+        worksheet = sh.worksheet("Master")
+        cell = worksheet.find(entry['StarSystem'])
+        systemrow = cell.row
+        this.MasterPriority.set = worksheet.cell(systemrow, 7).value
+        this.MasterFaction.set = worksheet.cell(systemrow, 9).value
+        this.MasterWork.set = worksheet.cell(systemrow, 11).value
+        this.MasterGoal.set = worksheet.cell(systemrow, 13).value
+        this.MasterCZFaction.set = worksheet.cell(systemrow, 15).value
+
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
         tick = response.json()
@@ -302,6 +233,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
+                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
+                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -330,6 +263,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
+                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
+                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -340,10 +275,22 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
         sheet_insert_new_system(x + 1)  # insert data into google sheet
 
     if entry['event'] == 'FSDJump':  # get factions at jump, load into today data, check tick and reset if needed
-        try :
+        try:
             this.SystemFaction.set(entry['SystemFaction']['Name'])
         except KeyError:
             this.SystemFaction.set('Unpopulated')
+
+        gc = gspread.service_account(filename=this.cred)
+        sh = gc.open("BSG Tally Store")
+        worksheet = sh.worksheet("Master")
+        cell = worksheet.find(entry['StarSystem'])
+        systemrow = cell.row
+        this.MasterPriority.set = worksheet.cell(systemrow, 7).value
+        this.MasterFaction.set = worksheet.cell(systemrow, 9).value
+        this.MasterWork.set = worksheet.cell(systemrow, 11).value
+        this.MasterGoal.set = worksheet.cell(systemrow, 13).value
+        this.MasterCZFaction.set = worksheet.cell(systemrow, 15).value
+
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
         tick = response.json()
@@ -389,6 +336,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
+                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
+                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -417,6 +366,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
+                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
+                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -542,43 +493,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                     data = entry['Fine']
                     sheet_commit_data(system, index, 'Fines&Bounties', data)
             save_data()
-
-    gc = gspread.service_account(filename=this.cred)
-    sh = gc.open("BSG Tally Store")
-    worksheet = sh.worksheet("Master")
-    cell1 = worksheet.find("HR 415")
-    systemrow = cell1.row
-    priority = worksheet.cell(systemrow, 2).value
-    faction = worksheet.cell(systemrow, 3).value
-    work = worksheet.cell(systemrow, 4).value
-    goal = worksheet.cell(systemrow, 5).value
-    cz = worksheet.cell(systemrow, 6).value
-    if entry['event'] == 'FSDJump':
-        try :
-            this.MasterPriority.set = priority
-        except KeyError:
-            this.MasterPriority.set('None')
-        theme.update(this.frame)
-        try :
-            this.MasterFaction.set = faction
-        except KeyError:
-            this.MasterFaction.set('None')
-        theme.update(this.frame)
-        try :
-            this.MasterWork.set= work
-        except KeyError:
-            this.MasterWork.set('None')
-        theme.update(this.frame)
-        try :
-            this.MasterGoal.set = goal
-        except KeyError:
-            this.MasterGoal.set('None')
-        theme.update(this.frame)
-        try :
-            this.MasterCZFaction.set = cz
-        except KeyError:
-            this.MasterCZFaction.set('None')
-        theme.update(this.frame)
 
 
 def version_tuple(version):
@@ -709,6 +623,11 @@ def save_data():
     config.set('XIndex', this.DataIndex.get())
     config.set('XStation', this.StationFaction.get())
     config.set('XSystem', this.SystemFaction.get())
+    config.set('XPriority', this.MasterPriority.get())
+    config.set('XFaction', this.MasterFaction.get())
+    config.set('XWork', this.MasterWork.get())
+    config.set('XGoal', this.MasterGoal.get())
+    config.set('XCZFaction', this.MasterCZFaction.get())
 
     file = os.path.join(this.Dir, "Today Data.txt")
     with open(file, 'w') as outfile:
@@ -738,6 +657,11 @@ def sheet_insert_new_system(index):
     factionpendingstate = []
     systemfaction = this.SystemFaction.get()
     system = this.TodayData[index][0]['System']
+    mpriority = '=vlookup(indirect("b"&row(),true),Master!$A:$F,2,false)'
+    mfaction = '=vlookup(indirect("b"&row(),true),Master!$A:$F,3,false)'
+    mwork = '=vlookup(indirect("b"&row(),true),Master!$A:$F,4,false)'
+    mgoal = '=vlookup(indirect("b"&row(),true),Master!$A:$F,5,false)'
+    mcz = '=vlookup(indirect("b"&row(),true),Master!$A:$F,6,false)'
     try:
         cell = worksheet.find(system)
     except gspread.exceptions.CellNotFound:
@@ -753,11 +677,17 @@ def sheet_insert_new_system(index):
             worksheet.update('B1', no_of_systems)
             # worksheet.update('A2:P3', [['System', system],['Faction', 'Mission +', 'Trade', 'Bounties',
             # 'Carto Data']])
-            worksheet.batch_update([{'range': 'A2:P3', 'values': [['System', system, 'System Control', systemfaction],
-                                                                  ['Faction', 'INF', 'State', 'PendingState',
-                                                                   'Bounties', 'Bonds', 'Mission +', 'Mission Failed',
-                                                                   'Trade', 'BMTrade', 'Carto Data', 'Murders',
-                                                                   'Fines&Bounties', 'CZ High', 'CZ Med', 'CZ Low']]},
+            worksheet.batch_update([{'range': 'A2:P3',
+                                     'values': [['System', system, 'System Control', systemfaction,
+                                                 'Priority', mpriority,
+                                                 'Faction', mfaction,
+                                                 'Work', mwork,
+                                                 'Goal', mgoal,
+                                                 'CZFaction', mcz],
+                                                ['Faction', 'INF', 'State', 'PendingState',
+                                                 'Bounties', 'Bonds', 'Mission +', 'Mission Failed',
+                                                 'Trade', 'BMTrade', 'Carto Data', 'Murders',
+                                                 'Fines&Bounties', 'CZ High', 'CZ Med', 'CZ Low']]},
                                     {'range': 'A4:A11', 'values': factionname},
                                     {'range': 'B4:B11', 'values': factioninf},
                                     {'range': 'C4:C11', 'values': factionstate},
@@ -770,7 +700,7 @@ def sheet_insert_new_system(index):
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}])
+                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}], value_input_option='USER_ENTERED')
         else:
             row = no_of_systems * 11 + 2
             no_of_systems += 1
@@ -781,11 +711,17 @@ def sheet_insert_new_system(index):
             range4 = 'C' + str(row + 2) + ':C' + str(row + 10)
             range5 = 'D' + str(row + 2) + ':D' + str(row + 10)
             range6 = 'E' + str(row + 2) + ':P' + str(row + 10)
-            worksheet.batch_update([{'range': range1, 'values': [['System', system, 'System Control', systemfaction],
-                                                                 ['Faction', 'INF', 'State', 'PendingState',
-                                                                  'Bounties', 'Bonds', 'Mission +', 'Mission Failed',
-                                                                  'Trade', 'BMTrade', 'Carto Data', 'Murders',
-                                                                  'Fines&Bounties', 'CZ High', 'CZ Med', 'CZ Low']]},
+            worksheet.batch_update([{'range': range1,
+                                     'values': [['System', system, 'System Control', systemfaction,
+                                                 'Priority', mpriority,
+                                                 'Faction', mfaction,
+                                                 'Work', mwork,
+                                                 'Goal', mgoal,
+                                                 'CZFaction', mcz],
+                                                ['Faction', 'INF', 'State', 'PendingState',
+                                                 'Bounties', 'Bonds', 'Mission +', 'Mission Failed',
+                                                 'Trade', 'BMTrade', 'Carto Data', 'Murders',
+                                                 'Fines&Bounties', 'CZ High', 'CZ Med', 'CZ Low']]},
                                     {'range': range2, 'values': factionname},
                                     {'range': range3, 'values': factioninf},
                                     {'range': range4, 'values': factionstate},
@@ -798,7 +734,7 @@ def sheet_insert_new_system(index):
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}])
+                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}], value_input_option='USER_ENTERED')
 
 
 def sheet_commit_data(system, index, event, data):
@@ -881,4 +817,3 @@ def sheet_commit_data(system, index, event, data):
         cell = worksheet.cell(factionrow, 16).value
         total = int(cell) + data
         worksheet.update_cell(factionrow, 16, total)
-
