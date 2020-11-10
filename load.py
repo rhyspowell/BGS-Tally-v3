@@ -26,6 +26,11 @@ this.DataIndex = 0
 this.Status = "Active"
 this.TickTime = ""
 this.cred = ''  # google sheet service account cred's path to file
+this.MasterPriority = ""
+this.MasterFaction = ""
+this.MasterWork = ""
+this.MasterGoal = ""
+this.MasterCZFaction = ""
 
 
 def plugin_prefs(parent):
@@ -127,38 +132,31 @@ def plugin_app(parent):
 
     tk.Button(this.frame, text='Data Today', command=display_data).grid(row=0, column=1, padx=3)
     tk.Button(this.frame, text='Mission Log').grid(row=0, column=2, padx=3)
-
     tk.Label(this.frame, text="Status:").grid(row=1, column=0, sticky=tk.W)
-
     tk.Label(this.frame, text="Last Tick:").grid(row=2, column=0, sticky=tk.W)
-
     this.Status_Label = tk.Label(this.frame, text=this.Status.get()).grid(row=1, column=1, sticky=tk.W)
-
     this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(row=2, column=1, sticky=tk.W)
-
     tk.Label(this.frame, text="Controlling Faction:").grid(row=3, column=0, sticky=tk.W)
     this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
     theme.update(this.frame)
-
     tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
-    this.Priority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+    this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
     theme.update(this.frame)
     tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
-    this.Priority_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+    this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
     theme.update(this.frame)
     tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
-    this.Priority_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+    this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
     theme.update(this.frame)
     tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
-    this.Priority_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+    this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
     theme.update(this.frame)
     tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
-    this.Priority_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+    this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
     theme.update(this.frame)
-
-    tk.Button(this.frame, text='CZ HIGH').grid(row=10, column=0, padx=3)  # add commands
-    tk.Button(this.frame, text='CZ MED').grid(row=10, column=1, padx=3)  # add commands
-    tk.Button(this.frame, text='CZ LOW').grid(row=10, column=2, padx=3)  # add commands
+    tk.Button(this.frame, text='CZ HIGH', command=high_cz).grid(row=10, column=0, padx=3)
+    tk.Button(this.frame, text='CZ MED', command=med_cz).grid(row=10, column=1, padx=3)
+    tk.Button(this.frame, text='CZ LOW', command=low_cz).grid(row=10, column=2, padx=3)
 
     return this.frame
 
@@ -173,20 +171,13 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
 
     if entry['event'] == 'Location':
         try:
-            this.SystemFaction.set(entry['SystemFaction']['Name'])
+            if this.SystemFaction.get != this.SystemFaction:
+                this.SystemFaction.set(entry['SystemFaction']['Name'])
         except KeyError:
             this.SystemFaction.set('Unpopulated')
-        
-        gc = gspread.service_account(filename=this.cred)
-        sh = gc.open("BSG Tally Store")
-        worksheet = sh.worksheet("Master")
-        cell = worksheet.find(entry['StarSystem'])
-        systemrow = cell.row
-        this.MasterPriority.set = worksheet.cell(systemrow, 7).value
-        this.MasterFaction.set = worksheet.cell(systemrow, 9).value
-        this.MasterWork.set = worksheet.cell(systemrow, 11).value
-        this.MasterGoal.set = worksheet.cell(systemrow, 13).value
-        this.MasterCZFaction.set = worksheet.cell(systemrow, 15).value
+        tk.Label(this.frame, text="Controlling Faction:").grid(row=3, column=0, sticky=tk.W)
+        this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
+        theme.update(this.frame)
 
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
@@ -233,8 +224,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
-                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
-                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -263,8 +252,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
-                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
-                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -273,23 +260,55 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                                                                  'CZ Low': 0})
 
         sheet_insert_new_system(x + 1)  # insert data into google sheet
+
+        try:
+            gc = gspread.service_account(filename=this.cred)
+            sh = gc.open("BSG Tally Store")
+            worksheet = sh.worksheet("Master")
+            system = this.TodayData[this.DataIndex.get()][0]['System']
+            cell1 = worksheet.find(system)
+            systemrow = cell1.row
+            pcell = worksheet.cell(systemrow, 2).value
+            fcell = worksheet.cell(systemrow, 3).value
+            wcell = worksheet.cell(systemrow, 4).value
+            gcell = worksheet.cell(systemrow, 5).value
+            czcell = worksheet.cell(systemrow, 6).value
+            this.MasterPriority.set(pcell)
+            tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
+            this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterFaction.set(fcell)
+            tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
+            this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterWork.set(wcell)
+            tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
+            this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterGoal.set(gcell)
+            tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
+            this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterCZFaction.set(czcell)
+            tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
+            this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+            theme.update(this.frame)
+        except:
+            this.MasterPriority.set('NONE')
+            this.MasterFaction.set('NONE')
+            this.MasterWork.set('NONE')
+            this.MasterGoal.set('NONE')
+            this.MasterCZFaction.set('NONE')
 
     if entry['event'] == 'FSDJump':  # get factions at jump, load into today data, check tick and reset if needed
         try:
-            this.SystemFaction.set(entry['SystemFaction']['Name'])
+            if this.SystemFaction.get != this.SystemFaction:
+                this.SystemFaction.set(entry['SystemFaction']['Name'])
         except KeyError:
             this.SystemFaction.set('Unpopulated')
-
-        gc = gspread.service_account(filename=this.cred)
-        sh = gc.open("BSG Tally Store")
-        worksheet = sh.worksheet("Master")
-        cell = worksheet.find(entry['StarSystem'])
-        systemrow = cell.row
-        this.MasterPriority.set = worksheet.cell(systemrow, 7).value
-        this.MasterFaction.set = worksheet.cell(systemrow, 9).value
-        this.MasterWork.set = worksheet.cell(systemrow, 11).value
-        this.MasterGoal.set = worksheet.cell(systemrow, 13).value
-        this.MasterCZFaction.set = worksheet.cell(systemrow, 15).value
+        tk.Label(this.frame, text="Controlling Faction:").grid(row=3, column=0, sticky=tk.W)
+        this.Controlling_Label = tk.Label(this.frame, text=this.SystemFaction.get()).grid(row=3, column=1, sticky=tk.W)
+        theme.update(this.frame)
 
         #  tick check and counter reset
         response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
@@ -336,8 +355,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
-                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
-                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -366,8 +383,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                         pendingstate = 'None'
 
                     this.TodayData[x + 1][0]['Factions'].append({'Faction': i['Name'], 'INF': inf, 'State': state,
-                                                                 'Priority': this.MasterPriority.get(), 'Target': this.MasterFaction.get(),
-                                                                 'Work': this.MasterWork.get(), 'Goal': this.MasterGoal.get(), 'CZFaction': this.MasterCZFaction.get(),
                                                                  'PendingState': pendingstate, 'Bounties': 0,
                                                                  'Bonds': 0, 'TradeProfit': 0, 'BMProfit': 0,
                                                                  'MissionPoints': 0, 'MissionFailed': 0, 'CartData': 0,
@@ -376,6 +391,45 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                                                                  'CZ Low': 0})
 
         sheet_insert_new_system(x + 1)  # insert data into google sheet
+
+        try:
+            gc = gspread.service_account(filename=this.cred)
+            sh = gc.open("BSG Tally Store")
+            worksheet = sh.worksheet("Master")
+            system = this.TodayData[this.DataIndex.get()][0]['System']
+            cell1 = worksheet.find(system)
+            systemrow = cell1.row
+            pcell = worksheet.cell(systemrow, 2).value
+            fcell = worksheet.cell(systemrow, 3).value
+            wcell = worksheet.cell(systemrow, 4).value
+            gcell = worksheet.cell(systemrow, 5).value
+            czcell = worksheet.cell(systemrow, 6).value
+            this.MasterPriority.set(pcell)
+            tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
+            this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterFaction.set(fcell)
+            tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
+            this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterWork.set(wcell)
+            tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
+            this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterGoal.set(gcell)
+            tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
+            this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+            theme.update(this.frame)
+            this.MasterCZFaction.set(czcell)
+            tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
+            this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+            theme.update(this.frame)
+        except:
+            this.MasterPriority.set('NONE')
+            this.MasterFaction.set('NONE')
+            this.MasterWork.set('NONE')
+            this.MasterGoal.set('NONE')
+            this.MasterCZFaction.set('NONE')
 
     if entry['event'] == 'RedeemVoucher' and entry['Type'] == 'bounty':  # bounties collected
         t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
@@ -493,6 +547,42 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                     data = entry['Fine']
                     sheet_commit_data(system, index, 'Fines&Bounties', data)
             save_data()
+
+
+def high_cz():
+    t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
+    for z in range(0, t):
+        if this.MasterCZFaction.get() == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
+            this.TodayData[this.DataIndex.get()][0]['Factions'][z]['CZ High'] += 1
+            system = this.TodayData[this.DataIndex.get()][0]['System']
+            index = z
+            data = 1
+            sheet_commit_data(system, index, 'CZ High', data)
+    save_data()
+
+
+def med_cz():
+    t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
+    for z in range(0, t):
+        if this.MasterCZFaction.get() == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
+            this.TodayData[this.DataIndex.get()][0]['Factions'][z]['CZ Med'] += 1
+            system = this.TodayData[this.DataIndex.get()][0]['System']
+            index = z
+            data = 1
+            sheet_commit_data(system, index, 'CZ Med', data)
+    save_data()
+
+
+def low_cz():
+    t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
+    for z in range(0, t):
+        if this.MasterCZFaction.get() == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
+            this.TodayData[this.DataIndex.get()][0]['Factions'][z]['CZ Low'] += 1
+            system = this.TodayData[this.DataIndex.get()][0]['System']
+            index = z
+            data = 1
+            sheet_commit_data(system, index, 'CZ Low', data)
+    save_data()
 
 
 def version_tuple(version):
@@ -657,11 +747,11 @@ def sheet_insert_new_system(index):
     factionpendingstate = []
     systemfaction = this.SystemFaction.get()
     system = this.TodayData[index][0]['System']
-    mpriority = '=vlookup(indirect("b"&row(),true),Master!$A:$F,2,false)'
-    mfaction = '=vlookup(indirect("b"&row(),true),Master!$A:$F,3,false)'
-    mwork = '=vlookup(indirect("b"&row(),true),Master!$A:$F,4,false)'
-    mgoal = '=vlookup(indirect("b"&row(),true),Master!$A:$F,5,false)'
-    mcz = '=vlookup(indirect("b"&row(),true),Master!$A:$F,6,false)'
+    mpriority = '=iferror(vlookup(indirect("b"&row(),true),Master!$A:$F,2,false),"NONE")'
+    mfaction = '=iferror(vlookup(indirect("b"&row(),true),Master!$A:$F,3,false),"NONE")'
+    mwork = '=iferror(vlookup(indirect("b"&row(),true),Master!$A:$F,4,false),"NONE")'
+    mgoal = '=iferror(vlookup(indirect("b"&row(),true),Master!$A:$F,5,false),"NONE")'
+    mcz = '=iferror(vlookup(indirect("b"&row(),true),Master!$A:$F,6,false),"NONE")'
     try:
         cell = worksheet.find(system)
     except gspread.exceptions.CellNotFound:
@@ -700,7 +790,8 @@ def sheet_insert_new_system(index):
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}], value_input_option='USER_ENTERED')
+                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}],
+                                   value_input_option='USER_ENTERED')
         else:
             row = no_of_systems * 11 + 2
             no_of_systems += 1
@@ -734,7 +825,8 @@ def sheet_insert_new_system(index):
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}], value_input_option='USER_ENTERED')
+                                                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}],
+                                   value_input_option='USER_ENTERED')
 
 
 def sheet_commit_data(system, index, event, data):
