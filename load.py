@@ -77,7 +77,6 @@ def plugin_start(plugin_dir):
     file = os.path.join(this.Dir, "MissionLog.txt")
 
 
-
     this.LastTick = tk.StringVar(value=config.get("XLastTick"))
     this.TickTime = tk.StringVar(value=config.get("XTickTime"))
     this.Status = tk.StringVar(value=config.get("XStatus"))
@@ -566,17 +565,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
         else:
             this.MissionData = {1: [{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'], 'INF': entry['Influence']}]}
         save_data()
-
-    if entry['event'] == 'MissionFailed':
-        t = len(this.MissionData[this.MissionIndex.get()][0]['ID'])
-        for z in range(0, t):
-            if entry['MissionID'] == this.MissionData[this.MissionIndex.get()][0][z]['ID']:
-                this.TodayData[this.DataIndex.get()][0]['Factions'][z]['MissionFailed'] += this.MissionData[this.MissionIndex.get()][0][z]['INF']
-                system = this.MissionData[this.MissionIndex.get()][0][z]['System']
-                index = z
-                data = this.MissionData[this.MissionIndex.get()][0][z]['INF']
-                sheet_commit_data(system, index, 'MissionFailed', data)
-        save_data()        
 
 
 def high_cz():
