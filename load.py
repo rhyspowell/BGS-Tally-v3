@@ -23,6 +23,8 @@ this = sys.modules[__name__]  # For holding module globals
 this.VersionNo = "3.0.2"
 this.TodayData = {}
 this.DataIndex = 0
+this.MissionData = {}
+this.MissionIndex = 0
 this.Status = "Active"
 this.TickTime = ""
 this.cred = ''  # google sheet service account cred's path to file
@@ -72,10 +74,15 @@ def plugin_start(plugin_dir):
                 this.TodayData[i] = this.TodayData[x]
                 del this.TodayData[x]
 
+    file = os.path.join(this.Dir, "MissionLog.txt")
+
+
+
     this.LastTick = tk.StringVar(value=config.get("XLastTick"))
     this.TickTime = tk.StringVar(value=config.get("XTickTime"))
     this.Status = tk.StringVar(value=config.get("XStatus"))
     this.DataIndex = tk.IntVar(value=config.get("XIndex"))
+    this.MissionIndex = tk.IntVar(value=config.get("XMIndex"))
     this.StationFaction = tk.StringVar(value=config.get("XStation"))
     this.SystemFaction = tk.StringVar(value=config.get("XSystem"))
     this.MasterPriority = tk.StringVar(value=config.get("XPriority"))
@@ -548,6 +555,29 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                     sheet_commit_data(system, index, 'Fines&Bounties', data)
             save_data()
 
+    if entry['event'] == 'MissionAccepted':  # get mission influence value
+        x = len(this.MissionData)
+        if (x >= 1):
+            for y in range(1, x+1):
+                system = this.TodayData[this.DataIndex.get()][0]['System']
+                this.MissionIndex.set(y)
+                this.MissionData[x+1] = [{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'], 'INF': entry['Influence']}]
+                this.MissionIndex.set(x+1)
+        else:
+            this.MissionData = {1: [{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'], 'INF': entry['Influence']}]}
+        save_data()
+
+    if entry['event'] == 'MissionFailed':
+        t = len(this.MissionData[this.MissionIndex.get()][0]['ID'])
+        for z in range(0, t):
+            if entry['MissionID'] == this.MissionData[this.MissionIndex.get()][0][z]['ID']:
+                this.TodayData[this.DataIndex.get()][0]['Factions'][z]['MissionFailed'] += this.MissionData[this.MissionIndex.get()][0][z]['INF']
+                system = this.MissionData[this.MissionIndex.get()][0][z]['System']
+                index = z
+                data = this.MissionData[this.MissionIndex.get()][0][z]['INF']
+                sheet_commit_data(system, index, 'MissionFailed', data)
+        save_data()        
+
 
 def high_cz():
     t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
@@ -711,6 +741,7 @@ def save_data():
     config.set('XTickTime', this.TickTime)
     config.set('XStatus', this.Status.get())
     config.set('XIndex', this.DataIndex.get())
+    config.set('XMIndex', this.MissionIndex.get())
     config.set('XStation', this.StationFaction.get())
     config.set('XSystem', this.SystemFaction.get())
     config.set('XPriority', this.MasterPriority.get())
@@ -723,6 +754,9 @@ def save_data():
     with open(file, 'w') as outfile:
         json.dump(this.TodayData, outfile)
 
+    file = os.path.join(this.Dir, "MissionLog.txt")
+    with open(file, 'w') as outfile:
+        json.dump(this.MissionData, outfile)
 
 def google_sheet_int():
     # start google sheet data store
@@ -900,6 +934,15 @@ def sheet_commit_data(system, index, event, data):
         total = int(cell) + data
         worksheet.update_cell(factionrow, 14, total)
 
+    if event == "CZ Med":
+        cell = worksheet.cell(factionrow, 15).value
+        total = int(cell) + data
+        worksheet.update_cell(factionrow, 15, total)
+
+    if event == "CZ Low":
+        cell = worksheet.cell(factionrow, 16).value
+        total = int(cell) + data
+        worksheet.update_cell(factionrow, 16, total)
     if event == "CZ Med":
         cell = worksheet.cell(factionrow, 15).value
         total = int(cell) + data
