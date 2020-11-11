@@ -558,7 +558,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
         x = len(this.MissionData)
         if (x >= 1):
             for y in range(1, x+1):
-                system = this.TodayData[this.DataIndex.get()][0]['System']
                 this.MissionIndex.set(y)
                 this.MissionData[x+1] = [{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'], 'INF': entry['Influence']}]
                 this.MissionIndex.set(x+1)
