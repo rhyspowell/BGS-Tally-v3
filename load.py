@@ -74,8 +74,11 @@ def plugin_start(plugin_dir):
                 this.TodayData[i] = this.TodayData[x]
                 del this.TodayData[x]
 
-    file = os.path.join(this.Dir, "MissionLog.txt")
+    file1 = os.path.join(this.Dir, "MissionLog.txt")
 
+    if path.exists(file1):
+        with open(file1) as json_file:
+            this.MissionData = json.load(json_file)
 
     this.LastTick = tk.StringVar(value=config.get("XLastTick"))
     this.TickTime = tk.StringVar(value=config.get("XTickTime"))
@@ -158,7 +161,8 @@ def plugin_app(parent):
     this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
     theme.update(this.frame)
     tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
-    this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+    this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1,
+                                                                                            sticky=tk.W)
     theme.update(this.frame)
     tk.Button(this.frame, text='CZ HIGH', command=high_cz).grid(row=10, column=0, padx=3)
     tk.Button(this.frame, text='CZ MED', command=med_cz).grid(row=10, column=1, padx=3)
@@ -281,23 +285,28 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
             czcell = worksheet.cell(systemrow, 6).value
             this.MasterPriority.set(pcell)
             tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
-            this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+            this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1,
+                                                                                                  sticky=tk.W)
             theme.update(this.frame)
             this.MasterFaction.set(fcell)
             tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
-            this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+            this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1,
+                                                                                                sticky=tk.W)
             theme.update(this.frame)
             this.MasterWork.set(wcell)
             tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
-            this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+            this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1,
+                                                                                          sticky=tk.W)
             theme.update(this.frame)
             this.MasterGoal.set(gcell)
             tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
-            this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+            this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1,
+                                                                                          sticky=tk.W)
             theme.update(this.frame)
             this.MasterCZFaction.set(czcell)
             tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
-            this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+            this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1,
+                                                                                                    sticky=tk.W)
             theme.update(this.frame)
         except:
             this.MasterPriority.set('NONE')
@@ -412,23 +421,28 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
             czcell = worksheet.cell(systemrow, 6).value
             this.MasterPriority.set(pcell)
             tk.Label(this.frame, text="Priority:").grid(row=4, column=0, sticky=tk.W)
-            this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1, sticky=tk.W)
+            this.MasterPriority_Label = tk.Label(this.frame, text=this.MasterPriority.get()).grid(row=4, column=1,
+                                                                                                  sticky=tk.W)
             theme.update(this.frame)
             this.MasterFaction.set(fcell)
             tk.Label(this.frame, text="Faction:").grid(row=5, column=0, sticky=tk.W)
-            this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1, sticky=tk.W)
+            this.MasterFaction_Label = tk.Label(this.frame, text=this.MasterFaction.get()).grid(row=5, column=1,
+                                                                                                sticky=tk.W)
             theme.update(this.frame)
             this.MasterWork.set(wcell)
             tk.Label(this.frame, text="Work:").grid(row=6, column=0, sticky=tk.W)
-            this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1, sticky=tk.W)
+            this.MasterWork_Label = tk.Label(this.frame, text=this.MasterWork.get()).grid(row=6, column=1,
+                                                                                          sticky=tk.W)
             theme.update(this.frame)
             this.MasterGoal.set(gcell)
             tk.Label(this.frame, text="Goal:").grid(row=7, column=0, sticky=tk.W)
-            this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1, sticky=tk.W)
+            this.MasterGoal_Label = tk.Label(this.frame, text=this.MasterGoal.get()).grid(row=7, column=1,
+                                                                                          sticky=tk.W)
             theme.update(this.frame)
             this.MasterCZFaction.set(czcell)
             tk.Label(this.frame, text="CZFaction:").grid(row=8, column=0, sticky=tk.W)
-            this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1, sticky=tk.W)
+            this.MasterCZFaction_Label = tk.Label(this.frame, text=this.MasterCZFaction.get()).grid(row=8, column=1,
+                                                                                                    sticky=tk.W)
             theme.update(this.frame)
         except:
             this.MasterPriority.set('NONE')
@@ -556,13 +570,32 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
 
     if entry['event'] == 'MissionAccepted':  # get mission influence value
         x = len(this.MissionData)
-        if (x >= 1):
+        if x >= 1:
             for y in range(1, x+1):
                 this.MissionIndex.set(y)
-                this.MissionData[x+1] = [{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'], 'INF': entry['Influence']}]
+                this.MissionData[x+1] = [{'Mission':[{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'],
+                                          'INF': entry['Influence']}]}]
                 this.MissionIndex.set(x+1)
         else:
-            this.MissionData = {1: [{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'], 'INF': entry['Influence']}]}
+            this.MissionData = {1: [{'Mission':[{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'],
+                                     'INF': entry['Influence']}]}]}
+        save_data()
+
+    if entry['event'] == 'MissionAbandoned':  # crime murder needs tested
+        t = len(this.MissionData[this.MissionIndex.get()][0]['Mission'])
+        for x in range(0, t):
+            if entry['MissionID'] == this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['ID']:
+                mffaction = this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['Faction']
+                mfsystem = this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['System']
+                mfinf = this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['INF']
+                t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
+                for z in range(0, t):
+                    if mffaction == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
+                        this.TodayData[this.DataIndex.get()][0]['Factions'][z]['MissionFailed'] += mfinf
+                        system = mfsystem
+                        index = z
+                        data = mfinf
+                        sheet_commit_data(system, index, 'MissionFailed', data)
         save_data()
 
 
@@ -744,6 +777,7 @@ def save_data():
     file = os.path.join(this.Dir, "MissionLog.txt")
     with open(file, 'w') as outfile:
         json.dump(this.MissionData, outfile)
+
 
 def google_sheet_int():
     # start google sheet data store
