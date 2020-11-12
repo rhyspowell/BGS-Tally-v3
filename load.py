@@ -23,8 +23,6 @@ this = sys.modules[__name__]  # For holding module globals
 this.VersionNo = "3.0.2"
 this.TodayData = {}
 this.DataIndex = 0
-this.MissionData = {}
-this.MissionIndex = 0
 this.Status = "Active"
 this.TickTime = ""
 this.cred = ''  # google sheet service account cred's path to file
@@ -74,17 +72,12 @@ def plugin_start(plugin_dir):
                 this.TodayData[i] = this.TodayData[x]
                 del this.TodayData[x]
 
-    file1 = os.path.join(this.Dir, "MissionLog.txt")
 
-    if path.exists(file1):
-        with open(file1) as json_file:
-            this.MissionData = json.load(json_file)
 
     this.LastTick = tk.StringVar(value=config.get("XLastTick"))
     this.TickTime = tk.StringVar(value=config.get("XTickTime"))
     this.Status = tk.StringVar(value=config.get("XStatus"))
     this.DataIndex = tk.IntVar(value=config.get("XIndex"))
-    this.MissionIndex = tk.IntVar(value=config.get("XMIndex"))
     this.StationFaction = tk.StringVar(value=config.get("XStation"))
     this.SystemFaction = tk.StringVar(value=config.get("XSystem"))
     this.MasterPriority = tk.StringVar(value=config.get("XPriority"))
@@ -521,7 +514,14 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                             if fe3 == this.TodayData[y][0]['Factions'][z]['Faction']:
                                 this.TodayData[y][0]['Factions'][z]['MissionPoints'] += inf
                                 sheet_commit_data(system, z, 'Mission', inf)
-        save_data()
+            save_data()
+        gc = gspread.service_account(filename=this.cred)
+        sh = gc.open("BSG Tally Store")
+        worksheet = sh.worksheet("Mission")
+        id = str(entry['MissionID'])
+        cell1 = worksheet.find(id)
+        missionrow = cell1.row
+        worksheet.delete_row(missionrow)
 
     if entry['event'] == 'SellExplorationData' or entry['event'] == "MultiSellExplorationData":  # get carto data value
         t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
@@ -569,34 +569,40 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
             save_data()
 
     if entry['event'] == 'MissionAccepted':  # get mission influence value
-        x = len(this.MissionData)
-        if x >= 1:
-            for y in range(1, x+1):
-                this.MissionIndex.set(y)
-                this.MissionData[x+1] = [{'Mission':[{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'],
-                                          'INF': entry['Influence']}]}]
-                this.MissionIndex.set(x+1)
-        else:
-            this.MissionData = {1: [{'Mission':[{'ID': entry['MissionID'], 'System': system, 'Faction': entry['Faction'],
-                                     'INF': entry['Influence']}]}]}
-        save_data()
+        gc = gspread.service_account(filename=this.cred)
+        sh = gc.open("BSG Tally Store")
+        worksheet = sh.worksheet("Mission")
+        str_list = list(filter(None, worksheet.col_values(1)))
+        next_row = (len(str_list)+1)
+        id = entry['MissionID']
+        system = this.TodayData[this.DataIndex.get()][0]['System']
+        faction = entry['Faction']
+        inf = len(entry['Influence'])
+        worksheet.update_cell(next_row, 1, id)
+        worksheet.update_cell(next_row, 2, system)
+        worksheet.update_cell(next_row, 3, faction)
+        worksheet.update_cell(next_row, 4, inf)
 
-    if entry['event'] == 'MissionAbandoned': 
-        t = len(this.MissionData[this.MissionIndex.get()][0]['Mission'])
-        for x in range(0, t):
-            if entry['MissionID'] == this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['ID']:
-                mffaction = this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['Faction']
-                mfsystem = this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['System']
-                mfinf = this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['INF']
-                t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
-                for z in range(0, t):
-                    if mffaction == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
-                        this.TodayData[this.DataIndex.get()][0]['Factions'][z]['MissionFailed'] += mfinf
-                        system = mfsystem
-                        index = z
-                        data = mfinf
-                        sheet_commit_data(system, index, 'MissionFailed', data)
-        save_data()
+    if entry['event'] == 'MissionFailed':
+        gc = gspread.service_account(filename=this.cred)
+        sh = gc.open("BSG Tally Store")
+        worksheet = sh.worksheet("Mission")
+        id = str(entry['MissionID'])
+        cell1 = worksheet.find(id)
+        missionrow = cell1.row
+        scell = worksheet.cell(missionrow, 2).value
+        fcell = worksheet.cell(missionrow, 3).value
+        icell = worksheet.cell(missionrow, 4).value
+        t = len(this.TodayData[this.DataIndex.get()][0]['Factions'])
+        for z in range(0, t):
+            if fcell == this.TodayData[this.DataIndex.get()][0]['Factions'][z]['Faction']:
+                this.TodayData[this.DataIndex.get()][0]['Factions'][z]['MissionFailed'] += int(icell)
+                system = scell
+                index = z
+                data = int(icell)
+                sheet_commit_data(system, index, 'MissionFailed', data)
+            save_data()
+        worksheet.delete_row(missionrow)
 
 
 def high_cz():
@@ -761,7 +767,6 @@ def save_data():
     config.set('XTickTime', this.TickTime)
     config.set('XStatus', this.Status.get())
     config.set('XIndex', this.DataIndex.get())
-    config.set('XMIndex', this.MissionIndex.get())
     config.set('XStation', this.StationFaction.get())
     config.set('XSystem', this.SystemFaction.get())
     config.set('XPriority', this.MasterPriority.get())
@@ -773,10 +778,6 @@ def save_data():
     file = os.path.join(this.Dir, "Today Data.txt")
     with open(file, 'w') as outfile:
         json.dump(this.TodayData, outfile)
-
-    file = os.path.join(this.Dir, "MissionLog.txt")
-    with open(file, 'w') as outfile:
-        json.dump(this.MissionData, outfile)
 
 
 def google_sheet_int():
