@@ -581,7 +581,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, index):
                                      'INF': entry['Influence']}]}]}
         save_data()
 
-    if entry['event'] == 'MissionAbandoned':  # crime murder needs tested
+    if entry['event'] == 'MissionAbandoned': 
         t = len(this.MissionData[this.MissionIndex.get()][0]['Mission'])
         for x in range(0, t):
             if entry['MissionID'] == this.MissionData[this.MissionIndex.get()][0]['Mission'][x]['ID']:
