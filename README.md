@@ -49,7 +49,7 @@ Click “Create key”
 Select “JSON” and click “Create”
 You will automatically download a JSON file with credentials. It may look like this:
 
-{
+```
     "type": "service_account",
     "project_id": "api-project-XXX",
     "private_key_id": "2cd … ba4",
@@ -57,7 +57,7 @@ You will automatically download a JSON file with credentials. It may look like t
     "client_email": "473000000000-yoursisdifferent@developer.gserviceaccount.com",
     "client_id": "473 … hd.apps.googleusercontent.com",
     ...
-}
+```
 
 Remeber the path to the downloaded credentials file. Also, in the next step you’ll need the value of client_email from this file.
 
