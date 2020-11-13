@@ -58,6 +58,7 @@ You will automatically download a JSON file with credentials. It may look like t
     "client_id": "473 … hd.apps.googleusercontent.com",
     ...
 }
+
 Remeber the path to the downloaded credentials file. Also, in the next step you’ll need the value of client_email from this file.
 
 Very important! Go to your spreadsheet and share it with a client_email from the step above. Just like you do with any other Google account. If you don’t do this, BGS tally can't write to the sheet.
