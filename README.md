@@ -30,11 +30,13 @@ If you want to have multiple cmdr's writing to the one sheet the credentials onl
 Create a Google Sheet, it only requires one sheet and the Plugin will create the rest as it goes
 
 Enable API Access for a Project
+
 Head to Google Developers Console and create a new project (or select the one you already have).
 In the box labeled “Search for APIs and Services”, search for “Google Drive API” and enable it.
 In the box labeled “Search for APIs and Services”, search for “Google Sheets API” and enable it.
 
 Creating a Service Account
+
 A service account is a special type of Google account intended to represent a non-human user that needs to authenticate and be authorized to access data in Google APIs [sic].
 Since it’s a separate account, by default it does not have access to any spreadsheet until you share it with this account. Just like any other Google account.
 
