@@ -25,6 +25,42 @@ Users will be notified if there is a new version is avalible.
 
 # Getting Google Sheet Credentials
 This plugin requries a google service account linked to a google sheet.
-I will detail how to do this soon.
-For testing purposes the Credentials file for a test sheet is preloaded in the install.
-Test sheet link - https://docs.google.com/spreadsheets/d/1uTkDn3ri2Xm4LZPh7ieYYGqf48y1sGQHu8QWa_mFXYI/edit?usp=sharing
+If you want to have multiple cmdr's writing to the one sheet the credentials only need to be created once and copied into each cmdr's BGS tally folder
+
+Create a Google Sheet, it only requires one sheet and the Plugin will create the rest as it goes
+
+Enable API Access for a Project
+
+Head to Google Developers Console and create a new project (or select the one you already have).
+In the box labeled “Search for APIs and Services”, search for “Google Drive API” and enable it.
+In the box labeled “Search for APIs and Services”, search for “Google Sheets API” and enable it.
+
+Creating a Service Account
+
+A service account is a special type of Google account intended to represent a non-human user that needs to authenticate and be authorized to access data in Google APIs [sic].
+Since it’s a separate account, by default it does not have access to any spreadsheet until you share it with this account. Just like any other Google account.
+
+Here’s how to get one:
+
+Enable API Access for a Project if you haven’t done it yet.
+Go to “APIs & Services > Credentials” and choose “Create credentials > Service account key”.
+Fill out the form
+Click “Create key”
+Select “JSON” and click “Create”
+You will automatically download a JSON file with credentials. It may look like this:
+
+```
+    "type": "service_account",
+    "project_id": "api-project-XXX",
+    "private_key_id": "2cd … ba4",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nNrDyLw … jINQh/9\n-----END PRIVATE KEY-----\n",
+    "client_email": "473000000000-yoursisdifferent@developer.gserviceaccount.com",
+    "client_id": "473 … hd.apps.googleusercontent.com",
+    ...
+```
+
+In the next step you’ll need the value of client_email from this file.
+
+Very important! Go to your spreadsheet and share it with a client_email from the step above. Just like you do with any other Google account. If you don’t do this, BGS tally can't write to the sheet.
+
+Move the downloaded file to your BGS tally folder. You can get the folder from EDMC -> settings -> plugins
