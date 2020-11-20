@@ -26,5 +26,5 @@ Users will be notified if there is a new version is avalible.
 # Getting Google Sheet Credentials
 This plugin requries a google service account linked to a google sheet.
 I will detail how to do this soon.
-For testing purposes the Credentials file for a test sheet is preloaded in the install.
-Test sheet link - https://docs.google.com/spreadsheets/d/1uTkDn3ri2Xm4LZPh7ieYYGqf48y1sGQHu8QWa_mFXYI/edit?usp=sharing
+
+
