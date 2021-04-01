@@ -95,7 +95,7 @@ def plugin_start(plugin_dir):
    latest = response.json()
    this.GitVersion = latest['tag_name']
    #  tick check and counter reset
-   response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
+   response = requests.get('https://elitebgs.app/api/ebgs/v5/ticks')  # get current tick and reset if changed
    tick = response.json()
    this.CurrentTick = tick[0]['_id']
    this.TickTime = tick[0]['time']
@@ -194,7 +194,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
       this.StationFaction.set(entry['StationFaction']['Name'])  # set controlling faction name
 
       #  tick check and counter reset
-      response = requests.get('https://elitebgs.app/api/ebgs/v4/ticks')  # get current tick and reset if changed
+      response = requests.get('https://elitebgs.app/api/ebgs/v5/ticks')  # get current tick and reset if changed
       tick = response.json()
       this.CurrentTick = tick[0]['_id']
       this.TickTime = tick[0]['time']
