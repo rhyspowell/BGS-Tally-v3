@@ -1,9 +1,9 @@
-
+import logging
 import myNotebook as nb
 import sys
 import json
 import requests
-from config import config
+from config import config, appname
 from theme import theme
 import webbrowser
 import os.path
@@ -29,9 +29,31 @@ this.DataIndex = 0
 this.Status = "Active"
 this.TickTime =""
 this.State = tk.IntVar()
-this.cred = '' #google sheet service account cred's path to file
+this.cred = 'client_secret.json' #google sheet service account cred's path to file
 
+# This could also be returned from plugin_start3()
+plugin_name = os.path.basename(os.path.dirname(__file__))
 
+# A Logger is used per 'found' plugin to make it easy to include the plugin's
+# folder name in the logging output format.
+# NB: plugin_name here *must* be the plugin's folder name as per the preceding
+#     code, else the logger won't be properly set up.
+logger = logging.getLogger(f'{appname}.{plugin_name}')
+
+# If the Logger has handlers then it was already set up by the core code, else
+# it needs setting up here.
+if not logger.hasHandlers():
+    level = logging.INFO  # So logger.info(...) is equivalent to print()
+
+    logger.setLevel(level)
+    logger_channel = logging.StreamHandler()
+    logger_formatter = logging.Formatter(f'%(asctime)s - %(name)s - %(levelname)s - %(module)s:%(lineno)d:%(funcName)s: %(message)s')
+    logger_formatter.default_time_format = '%Y-%m-%d %H:%M:%S'
+    logger_formatter.default_msec_format = '%s.%03d'
+    logger_channel.setFormatter(logger_formatter)
+    logger.addHandler(logger_channel)
+
+logger.info('BGS Tally has started')
 
 
 def plugin_prefs(parent, cmdr, is_beta):
@@ -99,8 +121,8 @@ def plugin_start(plugin_dir):
    tick = response.json()
    this.CurrentTick = tick[0]['_id']
    this.TickTime = tick[0]['time']
-   print(this.LastTick.get())
-   print(this.CurrentTick)
+   logger.info(this.LastTick.get())
+   logger.info(this.CurrentTick)
    if this.LastTick.get() != this.CurrentTick:
        this.LastTick.set(this.CurrentTick)
        this.YesterdayData = this.TodayData
@@ -109,7 +131,7 @@ def plugin_start(plugin_dir):
    # create google sheet
    Google_sheet_int()
 
-   return "BGS Tally v2"
+   return "BGS Tally v3"
 
 
 def plugin_start3(plugin_dir):
@@ -122,7 +144,7 @@ def plugin_stop():
     """
     save_data()
 
-    print ("Farewell cruel world!")
+    logger.info("Farewell cruel world!")
 
 def plugin_app(parent):
     """
