@@ -91,7 +91,10 @@ def plugin_start(plugin_dir):
     Load this plugin into EDMC
     """
     this.Dir = plugin_dir
-    this.cred = os.path.join(this.Dir, "client_secret.json")
+    try:
+        this.cred = os.path.join(this.Dir, "client_secret.json")
+    except FileNotFoundError:
+        logger.error("missing client secret file for gspread")
     file = os.path.join(this.Dir, "Today Data.txt")
 
     if path.exists(file):
