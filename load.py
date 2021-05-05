@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.1.3"
+this.VersionNo = "2.1.4"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -95,6 +95,7 @@ def plugin_start(plugin_dir):
         this.cred = os.path.join(this.Dir, "client_secret.json")
     except FileNotFoundError:
         logger.error("missing client secret file for gspread")
+    
     file = os.path.join(this.Dir, "Today Data.txt")
 
     if path.exists(file):
@@ -710,7 +711,8 @@ def Sheet_Commit_Data(system, index, event, data):
     sh = gc.open("BSG Tally Store")
     worksheet = sh.worksheet(this.TickTime)
     cell1 = worksheet.find(system)
-    FactionRow = cell1.row + 2 + index
+    # Increase the value here by 1 as numbers start from 0
+    FactionRow = cell1.row + 3 + index
     if event == "Mission":
         cell = worksheet.cell(FactionRow, 2).value
         Total = int(cell) + data
