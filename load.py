@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.1.1"
+this.VersionNo = "2.1.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -402,6 +402,10 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                     data = z["Amount"]
                     Sheet_Commit_Data(system, index, "Bounty", data)
         save_data()
+
+    if (entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond"):
+        logger.info("Combat Bond event")
+
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
