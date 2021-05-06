@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.2.0"
+this.VersionNo = "2.2.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -127,7 +127,7 @@ def plugin_start(plugin_dir):
     # this.LastTick.set("12")
 
     response = requests.get(
-        "https://api.github.com/repos/tezw21/BGS-Tally/releases/latest"
+        "https://api.github.com/repos/rhyspowell/BGS-Tally/releases/latest"
     )  # check latest version
     latest = response.json()
     this.GitVersion = latest["tag_name"]
