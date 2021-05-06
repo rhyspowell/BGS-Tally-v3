@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.1.4"
+this.VersionNo = "2.2.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -95,7 +95,7 @@ def plugin_start(plugin_dir):
         this.cred = os.path.join(this.Dir, "client_secret.json")
     except FileNotFoundError:
         logger.error("missing client secret file for gspread")
-    
+
     file = os.path.join(this.Dir, "Today Data.txt")
 
     if path.exists(file):
@@ -211,33 +211,11 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         print("Paused")
         return
 
-    if entry["event"] == "Location":  # get factions at startup
-        this.FactionNames = []
-        this.FactionStates = {"Factions": []}
-        z = 0
-        for i in entry["Factions"]:
-            if i["Name"] != "Pilots' Federation Local Branch":
-                this.FactionNames.append(i["Name"])
-                this.FactionStates["Factions"].append(
-                    {
-                        "Faction": i["Name"],
-                        "Happiness": i["Happiness_Localised"],
-                        "States": [],
-                    }
-                )
-
-                try:
-                    for x in i["ActiveStates"]:
-                        this.FactionStates["Factions"][z]["States"].append(
-                            {"State": x["State"]}
-                        )
-                except KeyError:
-                    this.FactionStates["Factions"][z]["States"].append(
-                        {"State": "None"}
-                    )
-                z += 1
-
-    if entry["event"] == "FSDJump":  # get factions at jump
+    if (
+        entry["event"] == "Location"
+        or entry["event"] == "FSDJump"
+        or entry["event"] == "CarrierJump"
+    ):  # get factions at startup
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
         z = 0
@@ -404,9 +382,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                     Sheet_Commit_Data(system, index, "Bounty", data)
         save_data()
 
-    if (entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond"):
+    if entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond":
         logger.info("Combat Bond event")
-
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
