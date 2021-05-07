@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.2.1"
+this.VersionNo = "2.2.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -126,11 +126,15 @@ def plugin_start(plugin_dir):
 
     # this.LastTick.set("12")
 
-    response = requests.get(
-        "https://api.github.com/repos/rhyspowell/BGS-Tally/releases/latest"
-    )  # check latest version
-    latest = response.json()
-    this.GitVersion = latest["tag_name"]
+    try:
+        response = requests.get(
+            "https://api.github.com/repos/rhyspowell/BGS-Tally/releases/latest"
+        )  # check latest version
+        latest = response.json()
+        this.GitVersion = latest["tag_name"]
+    except KeyError:
+        logger.error("Failed to get latest version from the github api")
+        this.GitVersion = "Connection Error"
     #  tick check and counter reset
     response = requests.get(
         "https://elitebgs.app/api/ebgs/v5/ticks"
