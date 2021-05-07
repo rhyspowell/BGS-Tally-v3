@@ -384,11 +384,11 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             for item in this.TodayData:
                 if item["System"] == system:
                     fnumber = 0
-                    for f in this.TodayData[itemnumber[0]["factions"]:
+                    for f in this.TodayData[itemnumber][0]["factions"]:
                         if f == faction:
                             newbounty = this.TodayData[item][itemnumber]["Factions"][fnumber]["Bounties"] + amount
                             this.TodayData[item][itemnumber]["Factions"][fnumber]["Bounties"] = newbounty
-                    fnumber += 1
+                        fnumber += 1
                 itemnumber += 1
 
             #not really sure what these do
