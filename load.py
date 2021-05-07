@@ -377,7 +377,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         logger.info("Current bounty info: " + str(this.TodayData))
         faction = entry["Factions"][0]["Faction"]
         amount = entry["Factions"][0]["Amount"]
-        
+
         try:
             logger.info("Attempt new bounty process")
             itemnumber = 1
@@ -386,20 +386,27 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                     fnumber = 0
                     for f in this.TodayData[itemnumber][0]["factions"]:
                         if f == faction:
-                            newbounty = this.TodayData[item][itemnumber]["Factions"][fnumber]["Bounties"] + amount
-                            this.TodayData[item][itemnumber]["Factions"][fnumber]["Bounties"] = newbounty
+                            newbounty = (
+                                this.TodayData[item][itemnumber]["Factions"][fnumber][
+                                    "Bounties"
+                                ]
+                                + amount
+                            )
+                            this.TodayData[item][itemnumber]["Factions"][fnumber][
+                                "Bounties"
+                            ] = newbounty
                         fnumber += 1
                 itemnumber += 1
 
-            #not really sure what these do
-            #system = this.TodayData[this.DataIndex.get()][0]["System"]
-            #index = this.DataIndex.get()
+            # not really sure what these do
+            # system = this.TodayData[this.DataIndex.get()][0]["System"]
+            # index = this.DataIndex.get()
             Sheet_Commit_Data(system, index, "Bounty", amount)
         except Error as e:
             logger.error("Error produced, fallen back to old code")
             logger.error(e)
             t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-            
+
             for x in range(0, t):
                 if (
                     faction
