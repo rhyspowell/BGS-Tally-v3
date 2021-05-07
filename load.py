@@ -374,10 +374,10 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         example bounty
         { "timestamp":"2021-05-06T23:08:25Z", "event":"RedeemVoucher", "Type":"bounty", "Amount":7656828, "Factions":[ { "Faction":"Fatal Shadows", "Amount":7656828 } ] }
         """
-        logger.info("Current bounty info: " + this.TodayData)
+        logger.info("Current bounty info: " + str(this.TodayData))
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-        faction = event["Factions"][0]["Faction"]
-        amount = event["Factions"][0]["Amount"]
+        faction = entry["Factions"][0]["Faction"]
+        amount = entry["Factions"][0]["Amount"]
         for x in range(0, t):
             if (
                 faction
