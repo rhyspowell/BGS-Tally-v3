@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.2.2"
+this.VersionNo = "2.2.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -370,23 +370,32 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
     if (
         entry["event"] == "RedeemVoucher" and entry["Type"] == "bounty"
     ):  # bounties collected
+        """
+        example bounty
+        { "timestamp":"2021-05-06T23:08:25Z", "event":"RedeemVoucher", "Type":"bounty", "Amount":7656828, "Factions":[ { "Faction":"Fatal Shadows", "Amount":7656828 } ] }
+        """
+        logger.info("Current bounty info: " + this.TodayData)
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-        for z in entry["Factions"]:
-            for x in range(0, t):
-                if (
-                    z["Faction"]
-                    == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
-                ):
-                    this.TodayData[this.DataIndex.get()][0]["Factions"][x][
-                        "Bounties"
-                    ] += z["Amount"]
-                    system = this.TodayData[this.DataIndex.get()][0]["System"]
-                    index = this.DataIndex.get()
-                    data = z["Amount"]
-                    Sheet_Commit_Data(system, index, "Bounty", data)
+        faction = event["Factions"][0]["Faction"]
+        amount = event["Factions"][0]["Amount"]
+        for x in range(0, t):
+            if (
+                faction
+                == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
+            ):
+                this.TodayData[this.DataIndex.get()][0]["Factions"][x][
+                    "Bounties"
+                ] += amount
+                system = this.TodayData[this.DataIndex.get()][0]["System"]
+                index = this.DataIndex.get()
+                Sheet_Commit_Data(system, index, "Bounty", amount)
         save_data()
 
     if entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond":
+        """
+        example combat bound
+        { "timestamp":"2021-05-06T23:08:19Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":9098729, "Faction":"Fatal Shadows" }
+        """
         logger.info("Combat Bond event")
 
     if entry["event"] == "MarketSell":  # Trade Profit
