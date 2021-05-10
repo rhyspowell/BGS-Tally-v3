@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.3.0"
+this.VersionNo = "2.3.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -60,7 +60,7 @@ logger.info("BGS Tally has started")
 
 
 def plugin_prefs(parent, cmdr, is_beta):
-    logger.info("plugin_prefs function")
+    logger.debug("plugin_prefs function")
     """
     Return a TK Frame for adding to the EDMC settings dialog.
     """
@@ -81,7 +81,7 @@ def plugin_prefs(parent, cmdr, is_beta):
 
 
 def prefs_changed(cmdr, is_beta):
-    logger.info("prefs_changed function")
+    logger.debug("prefs_changed function")
     """
     Save settings.
     """
@@ -89,7 +89,7 @@ def prefs_changed(cmdr, is_beta):
 
 
 def plugin_start(plugin_dir):
-    logger.info("Plugin_start function")
+    logger.debug("Plugin_start function")
     """
     Load this plugin into EDMC
     """
@@ -130,7 +130,7 @@ def plugin_start(plugin_dir):
     # this.LastTick.set("12")
 
     try:
-        logger.info("get version from api")
+        logger.debug("get version from api")
         response = requests.get(
             "https://api.github.com/repos/rhyspowell/BGS-Tally-v3/releases/latest"
         )  # check latest version
@@ -160,7 +160,7 @@ def plugin_start(plugin_dir):
 
 
 def plugin_start3(plugin_dir):
-    logger.info("Plugin3 function")
+    logger.debug("Plugin3 function")
     return plugin_start(plugin_dir)
 
 
@@ -177,7 +177,7 @@ def plugin_app(parent):
     """
     Create a frame for the EDMC main window
     """
-    logger.info("plugin_app function")
+    logger.debug("plugin_app function")
     this.frame = tk.Frame(parent)
 
     Title = tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
@@ -245,7 +245,7 @@ def faction_processing(event):
 
 
 def journal_entry(cmdr, is_beta, system, station, entry, state):
-    logger.info("journal_entry function")
+    logger.debug("journal_entry function")
 
     if this.Status.get() != "Active":
         print("Paused")
