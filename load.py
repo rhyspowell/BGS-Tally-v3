@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "2.2.5"
+this.VersionNo = "2.3.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -215,6 +215,35 @@ def plugin_app(parent):
     return this.frame
 
 
+def faction_processing(event):
+    FactionNames = []
+    FactionStates = {"Factions": []}
+    z = 0
+    for i in entry["Factions"]:
+        if i["Name"] != "Pilots' Federation Local Branch":
+            FactionNames.append(i["Name"])
+            FactionStates["Factions"].append(
+                {
+                    "Faction": i["Name"],
+                    "Happiness": i["Happiness_Localised"],
+                    "States": [],
+                }
+            )
+
+            try:
+                for x in i["ActiveStates"]:
+                    FactionStates["Factions"][z]["States"].append(
+                        {"State": x["State"]}
+                    )
+            except KeyError:
+                FactionStates["Factions"][z]["States"].append(
+                    {"State": "None"}
+                )
+            z += 1
+    logging.debug(FactionStates)
+    return FactionNames, FactionStates
+
+
 def journal_entry(cmdr, is_beta, system, station, entry, state):
     logger.info("journal_entry function")
 
@@ -226,31 +255,10 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         entry["event"] == "Location"
         or entry["event"] == "FSDJump"
         or entry["event"] == "CarrierJump"
-    ):  # get factions at startup
+    ):  # get factions
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
-        z = 0
-        for i in entry["Factions"]:
-            if i["Name"] != "Pilots' Federation Local Branch":
-                this.FactionNames.append(i["Name"])
-                this.FactionStates["Factions"].append(
-                    {
-                        "Faction": i["Name"],
-                        "Happiness": i["Happiness_Localised"],
-                        "States": [],
-                    }
-                )
-
-                try:
-                    for x in i["ActiveStates"]:
-                        this.FactionStates["Factions"][z]["States"].append(
-                            {"State": x["State"]}
-                        )
-                except KeyError:
-                    this.FactionStates["Factions"][z]["States"].append(
-                        {"State": "None"}
-                    )
-                z += 1
+        this.FactionNames, this.FactionStates = faction_processing(event)
 
     if entry["event"] == "Docked":  # enter system and faction named
 
