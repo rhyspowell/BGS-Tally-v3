@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.0.1"
+this.VersionNo = "4.0.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -136,6 +136,8 @@ def plugin_start(plugin_dir):
         )  # check latest version
         latest = response.json()
         this.GitVersion = latest["tag_name"]
+        logger.debug("Reported Git version: " + this.GitVersion)
+        logger.debug("Currently tagged version: " + this.VersionNo)
     except KeyError:
         logger.error("Failed to get latest version from the github api")
         this.GitVersion = "Connection Error"
