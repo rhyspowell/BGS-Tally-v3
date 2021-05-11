@@ -392,7 +392,9 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         try:
             logger.info("Attempt new bounty process")
             itemnumber = 1
+            logger.debug("TodayData: " + str(this.TodayData))
             for item in this.TodayData:
+                logger.debug("Item Data: " + str(item))
                 if item["System"] == system:
                     fnumber = 0
                     for f in this.TodayData[itemnumber][0]["factions"]:
