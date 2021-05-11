@@ -413,7 +413,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             # system = this.TodayData[this.DataIndex.get()][0]["System"]
             # index = this.DataIndex.get()
             Sheet_Commit_Data(system, index, "Bounty", amount)
-        except Error as e:
+        except Exception as e:
             logger.error("Error produced, fallen back to old code")
             logger.error(e)
             t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
