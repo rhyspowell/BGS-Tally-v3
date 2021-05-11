@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.0.0"
+this.VersionNo = "4.0.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -215,7 +215,7 @@ def plugin_app(parent):
     return this.frame
 
 
-def faction_processing(event):
+def faction_processing(entry):
     FactionNames = []
     FactionStates = {"Factions": []}
     z = 0
@@ -254,7 +254,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
     ):  # get factions
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
-        this.FactionNames, this.FactionStates = faction_processing(event)
+        this.FactionNames, this.FactionStates = faction_processing(entry)
 
     if entry["event"] == "Docked":  # enter system and faction named
 
@@ -394,8 +394,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             itemnumber = 1
             logger.debug("TodayData: " + str(this.TodayData))
             for item in this.TodayData:
-                logger.debug("Item Data: " + str(item))
-                if item["System"] == system:
+                logger.debug("Item Data: " + str(this.TodayData[item]))
+                if this.TodayData[item]["System"] == system:
                     fnumber = 0
                     for f in this.TodayData[itemnumber][0]["factions"]:
                         if f == faction:
