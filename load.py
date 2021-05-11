@@ -232,13 +232,9 @@ def faction_processing(event):
 
             try:
                 for x in i["ActiveStates"]:
-                    FactionStates["Factions"][z]["States"].append(
-                        {"State": x["State"]}
-                    )
+                    FactionStates["Factions"][z]["States"].append({"State": x["State"]})
             except KeyError:
-                FactionStates["Factions"][z]["States"].append(
-                    {"State": "None"}
-                )
+                FactionStates["Factions"][z]["States"].append({"State": "None"})
             z += 1
     logging.debug(FactionStates)
     return FactionNames, FactionStates
