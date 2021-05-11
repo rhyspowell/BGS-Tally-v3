@@ -194,7 +194,7 @@ def plugin_app(parent):
         title2.bind(
             "<Button-1>",
             lambda e: webbrowser.open_new(
-                "https://github.com/tezw21/BGS-Tally/releases"
+                "https://github.com/rhyspowell/BGS-Tally-v3/releases"
             ),
         )
 
