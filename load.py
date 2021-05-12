@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.2.0"
+this.VersionNo = "4.2.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -492,7 +492,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         logger.debug("Sheet Commit Data")
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
         worksheet = sh.worksheet(this.TickTime)
-        Total = int('h1') + entry["Amount"]
+        Total = int(worksheet.get('h1').first()) + entry["Amount"]
         worksheet.update_cell('h1', Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
