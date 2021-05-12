@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.2.1"
+this.VersionNo = "4.2.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -446,7 +446,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             logger.debug("TodayData: " + str(this.TodayData))
             for item in this.TodayData:
                 logger.debug("Item Data: " + str(this.TodayData[item]))
-                if this.TodayData[item]["System"] == system:
+                if this.TodayData[0]["System"] == system:
                     fnumber = 0
                     for f in this.TodayData[itemnumber][0]["factions"]:
                         if f == faction:
