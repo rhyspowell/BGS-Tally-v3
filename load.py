@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.0.2"
+this.VersionNo = "v4.0.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -136,8 +136,6 @@ def plugin_start(plugin_dir):
         )  # check latest version
         latest = response.json()
         this.GitVersion = latest["tag_name"]
-        logger.debug("Reported Git version: " + this.GitVersion)
-        logger.debug("Currently tagged version: " + this.VersionNo)
     except KeyError:
         logger.error("Failed to get latest version from the github api")
         this.GitVersion = "Connection Error"
@@ -184,7 +182,7 @@ def plugin_app(parent):
 
     Title = tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
     Title.grid(row=0, column=0, sticky=tk.W)
-    if version_tuple(this.GitVersion) > version_tuple(this.VersionNo):
+    if this.GitVersion != this.VersionNo:
         title2 = tk.Label(
             this.frame, text="New version available", fg="blue", cursor="hand2"
         )
