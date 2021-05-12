@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.1.2"
+this.VersionNo = "4.1.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -240,6 +240,55 @@ def faction_processing(entry):
             z += 1
     logging.debug(FactionStates)
     return FactionNames, FactionStates
+
+
+def docked():
+    pass
+
+
+def missioncompleted():
+    pass
+
+
+def explorationdata():
+    pass
+
+
+def bounty():
+    pass
+
+
+def combatbond():
+    pass
+
+
+def marketsell():
+    pass
+
+
+def missionaccepted():
+    logger.debug("Mission Accepted")
+    pass
+
+
+def missionfailed():
+    logger.debug("Mission failed")
+    pass
+
+
+def missionabandoned():
+    logger.debug("Mission Abandoned")
+    pass
+
+
+def missionsstartup():
+    logger.debug("Missions at startup")
+    pass
+
+
+def ussdrop():
+    logger.debug("USS Drop")
+    pass
 
 
 def journal_entry(cmdr, is_beta, system, station, entry, state):
@@ -461,27 +510,19 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         save_data()
 
     if entry["event"] == "MissionAccepted":  # mission accpeted
-        print("Mission Accepted")
+        missionaccepted()
 
     if entry["event"] == "MissionFailed":  # mission failed
-        print("Mission Failed")
+        missionfailed()
 
     if entry["event"] == "MissionAbandoned":
-        print("Mission Abandoned")
+        missionabandoned()
 
     if entry["event"] == "Missions":  # missions on startup
-        print("Missions on Startup")
+        missionsstartup()
 
     if entry["event"] == "USSDrop":
-        print("USSDrop")
-
-
-def version_tuple(version):
-    try:
-        ret = tuple(map(int, version.split(".")))
-    except:
-        ret = (0,)
-    return ret
+        ussdrop()
 
 
 def human_format(num):
