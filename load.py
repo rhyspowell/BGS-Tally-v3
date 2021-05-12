@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.2.2"
+this.VersionNo = "4.2.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -791,7 +791,7 @@ def Sheet_Commit_Data(system, index, event, data):
     sh = gc.open("BSG Tally Store")
     worksheet = sh.worksheet(this.TickTime)
     cell1 = worksheet.find(system)
-    logger.debug("Cell1 is " + cell1)
+    logger.debug("Cell1 is " + str(cell1))
     # Increase the value here by 1 as numbers start from 0
     FactionRow = cell1.row + 3 + index
     if event == "Mission":
