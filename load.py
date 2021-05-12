@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.1.0"
+this.VersionNo = "4.1.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -96,7 +96,7 @@ def check_version():
         )  # check latest version
         latest = response.json()
         this.GitVersion = latest["tag_name"][1:]
-        if this.Gitversion > this.VersionNo:
+        if this.GitVersion > this.VersionNo:
             return True
     except KeyError:
         logger.error("Failed to get latest version from the github api")
