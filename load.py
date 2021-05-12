@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "v4.0.3"
+this.VersionNo = "4.1.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -88,11 +88,28 @@ def prefs_changed(cmdr, is_beta):
     this.StatusLabel["text"] = this.Status.get()
 
 
+def check_version():
+    try:
+        logger.debug("get version from api")
+        response = requests.get(
+            "https://api.github.com/repos/rhyspowell/BGS-Tally-v3/releases/latest"
+        )  # check latest version
+        latest = response.json()
+        this.GitVersion = latest["tag_name"][1:]
+        if this.Gitversion > this.VersionNo:
+            return True
+    except KeyError:
+        logger.error("Failed to get latest version from the github api")
+        this.GitVersion = "Connection Error"
+    return False
+
+
 def plugin_start3(plugin_dir):
     logger.debug("Plugin_start function")
     """
     Load this plugin into EDMC
     """
+
     this.Dir = plugin_dir
     try:
         this.cred = os.path.join(this.Dir, "client_secret.json")
@@ -127,18 +144,6 @@ def plugin_start3(plugin_dir):
     this.DataIndex = tk.IntVar(value=config.get("xIndex"))
     this.StationFaction = tk.StringVar(value=config.get("XStation"))
 
-    # this.LastTick.set("12")
-
-    try:
-        logger.debug("get version from api")
-        response = requests.get(
-            "https://api.github.com/repos/rhyspowell/BGS-Tally-v3/releases/latest"
-        )  # check latest version
-        latest = response.json()
-        this.GitVersion = latest["tag_name"]
-    except KeyError:
-        logger.error("Failed to get latest version from the github api")
-        this.GitVersion = "Connection Error"
     #  tick check and counter reset
     response = requests.get(
         "https://elitebgs.app/api/ebgs/v5/ticks"
@@ -159,7 +164,7 @@ def plugin_start3(plugin_dir):
     return "BGS Tally v3"
 
 
-#def plugin_start3(plugin_dir):
+# def plugin_start3(plugin_dir):
 #    logger.debug("Plugin3 function")
 #    return plugin_start(plugin_dir)
 
@@ -182,7 +187,9 @@ def plugin_app(parent):
 
     Title = tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
     Title.grid(row=0, column=0, sticky=tk.W)
-    if this.GitVersion != this.VersionNo:
+
+    update = check_version()
+    if update:
         title2 = tk.Label(
             this.frame, text="New version available", fg="blue", cursor="hand2"
         )
