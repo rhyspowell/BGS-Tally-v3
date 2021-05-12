@@ -88,7 +88,7 @@ def prefs_changed(cmdr, is_beta):
     this.StatusLabel["text"] = this.Status.get()
 
 
-def plugin_start(plugin_dir):
+def plugin_start3(plugin_dir):
     logger.debug("Plugin_start function")
     """
     Load this plugin into EDMC
@@ -159,9 +159,9 @@ def plugin_start(plugin_dir):
     return "BGS Tally v3"
 
 
-def plugin_start3(plugin_dir):
-    logger.debug("Plugin3 function")
-    return plugin_start(plugin_dir)
+#def plugin_start3(plugin_dir):
+#    logger.debug("Plugin3 function")
+#    return plugin_start(plugin_dir)
 
 
 def plugin_stop():
