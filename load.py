@@ -164,11 +164,6 @@ def plugin_start3(plugin_dir):
     return "BGS Tally v3"
 
 
-# def plugin_start3(plugin_dir):
-#    logger.debug("Plugin3 function")
-#    return plugin_start(plugin_dir)
-
-
 def plugin_stop():
     """
     EDMC is closing
