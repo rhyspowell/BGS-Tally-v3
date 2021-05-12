@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.1.3"
+this.VersionNo = "4.2.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -489,7 +489,11 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         example combat bound
         { "timestamp":"2021-05-06T23:08:19Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":9098729, "Faction":"Fatal Shadows" }
         """
-        logger.info("Combat Bond event")
+        logger.debug("Sheet Commit Data")
+        sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
+        worksheet = sh.worksheet(this.TickTime)
+        Total = int('h1') + entry["Amount"]
+        worksheet.update_cell('h1', Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
@@ -782,10 +786,12 @@ def Sheet_Insert_New_System(index):
 
 
 def Sheet_Commit_Data(system, index, event, data):
+    logger.debug("Sheet Commit Data")
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
     worksheet = sh.worksheet(this.TickTime)
     cell1 = worksheet.find(system)
+    logger.debug("Cell1 is " + cell1)
     # Increase the value here by 1 as numbers start from 0
     FactionRow = cell1.row + 3 + index
     if event == "Mission":
@@ -806,4 +812,4 @@ def Sheet_Commit_Data(system, index, event, data):
     if event == "Trade":
         cell = worksheet.cell(FactionRow, 3).value
         Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 3, Total)
+        worksheet.update_cell(FactionRow, 3, Total) 
