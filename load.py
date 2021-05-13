@@ -498,7 +498,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             logger.error("Cell value error: " + str(e))
             current_value = 0
         Total = current_value + entry["Amount"]
-        worksheet.update_cell('h1', Total)
+        worksheet.update_cell('R1C8', Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
