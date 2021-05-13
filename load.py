@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.2.6"
+this.VersionNo = "4.2.7"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -436,52 +436,23 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         example bounty
         { "timestamp":"2021-05-06T23:08:25Z", "event":"RedeemVoucher", "Type":"bounty", "Amount":7656828, "Factions":[ { "Faction":"Fatal Shadows", "Amount":7656828 } ] }
         """
-        logger.info("Current bounty info: " + str(this.TodayData))
+        logger.debug("Running bounty")
         faction = entry["Factions"][0]["Faction"]
         amount = entry["Factions"][0]["Amount"]
 
-        try:
-            logger.info("Attempt new bounty process")
-            itemnumber = 1
-            logger.debug("TodayData: " + str(this.TodayData))
-            for item in this.TodayData:
-                logger.debug("Item Data: " + str(this.TodayData[item]))
-                if this.TodayData[0]["System"] == system:
-                    fnumber = 0
-                    for f in this.TodayData[itemnumber][0]["factions"]:
-                        if f == faction:
-                            newbounty = (
-                                this.TodayData[item][itemnumber]["Factions"][fnumber][
-                                    "Bounties"
-                                ]
-                                + amount
-                            )
-                            this.TodayData[item][itemnumber]["Factions"][fnumber][
-                                "Bounties"
-                            ] = newbounty
-                        fnumber += 1
-                itemnumber += 1
+        t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
 
-            # not really sure what these do
-            # system = this.TodayData[this.DataIndex.get()][0]["System"]
-            # index = this.DataIndex.get()
-            Sheet_Commit_Data(system, index, "Bounty", amount)
-        except Exception as e:
-            logger.error("Error produced, fallen back to old code")
-            logger.error(e)
-            t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-
-            for x in range(0, t):
-                if (
-                    faction
-                    == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
-                ):
-                    this.TodayData[this.DataIndex.get()][0]["Factions"][x][
-                        "Bounties"
-                    ] += amount
-                    system = this.TodayData[this.DataIndex.get()][0]["System"]
-                    index = this.DataIndex.get()
-                    Sheet_Commit_Data(system, index, "Bounty", amount)
+        for x in range(0, t):
+            if (
+                faction
+                == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
+            ):
+                this.TodayData[this.DataIndex.get()][0]["Factions"][x][
+                    "Bounties"
+                ] += amount
+                system = this.TodayData[this.DataIndex.get()][0]["System"]
+                index = this.DataIndex.get()
+                Sheet_Commit_Data(system, index, "Bounty", amount)
         save_data()
 
     if entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond":
@@ -799,6 +770,7 @@ def Sheet_Commit_Data(system, index, event, data):
     logger.debug("Cell1 is " + str(cell1))
     # Increase the value here by 1 as numbers start from 0
     FactionRow = cell1.row + 3 + index
+    logger.debug("Faction row: " + str(FactionRow))
     if event == "Mission":
         cell = worksheet.cell(FactionRow, 2).value
         Total = int(cell) + data
@@ -811,6 +783,7 @@ def Sheet_Commit_Data(system, index, event, data):
 
     if event == "Bounty":
         cell = worksheet.cell(FactionRow, 4).value
+        logger.debug("bounty cell" + str(cell))
         Total = int(cell) + data
         worksheet.update_cell(FactionRow, 4, Total)
 
