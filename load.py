@@ -1,3 +1,4 @@
+import datetime
 import logging
 import myNotebook as nb
 import sys
@@ -22,13 +23,14 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.2.9"
+this.VersionNo = "4.3.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
 this.DataIndex = 0
 this.Status = "Active"
 this.TickTime = ""
+this.TickTimePlain = ""
 this.State = tk.IntVar()
 # this.cred = 'client_secret.json' #google sheet service account cred's path to file
 
@@ -104,6 +106,26 @@ def check_version():
     return False
 
 
+def check_tick():
+    #  tick check and counter reset
+    logger.debug("Check Tick")
+    response = requests.get(
+        "https://elitebgs.app/api/ebgs/v5/ticks"
+    )  # get current tick and reset if changed
+    tick = response.json()
+    this.CurrentTick = tick[0]["_id"]
+    this.TickTime = tick[0]["time"]
+    TickTimePlain = datetime.datetime.strptime(this.TickTime, "%Y-%m-%dT%H:%M:%S.%fZ")
+    this.TickTimePlain = TickTimePlain.strftime("%H:%m UTC %d %b")
+    logger.info(this.LastTick.get())
+    logger.info(this.CurrentTick)
+    if this.LastTick.get() != this.CurrentTick:
+        this.LastTick.set(this.CurrentTick)
+        this.YesterdayData = this.TodayData
+        this.TodayData = {}
+        logger.info("Tick auto reset happened")
+
+
 def plugin_start3(plugin_dir):
     logger.debug("Plugin_start function")
     """
@@ -144,20 +166,7 @@ def plugin_start3(plugin_dir):
     this.DataIndex = tk.IntVar(value=config.get("xIndex"))
     this.StationFaction = tk.StringVar(value=config.get("XStation"))
 
-    #  tick check and counter reset
-    response = requests.get(
-        "https://elitebgs.app/api/ebgs/v5/ticks"
-    )  # get current tick and reset if changed
-    tick = response.json()
-    this.CurrentTick = tick[0]["_id"]
-    this.TickTime = tick[0]["time"]
-    logger.info(this.LastTick.get())
-    logger.info(this.CurrentTick)
-    if this.LastTick.get() != this.CurrentTick:
-        this.LastTick.set(this.CurrentTick)
-        this.YesterdayData = this.TodayData
-        this.TodayData = {}
-        print("Tick auto reset happened")
+    check_tick()
     # create google sheet
     Google_sheet_int()
 
@@ -210,7 +219,7 @@ def plugin_app(parent):
     tk.Label(this.frame, text="Last Tick:").grid(row=3, column=0, sticky=tk.W)
     this.StatusLabel = tk.Label(this.frame, text=this.Status.get())
     this.StatusLabel.grid(row=2, column=1, sticky=tk.W)
-    this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(
+    this.TimeLabel = tk.Label(this.frame, text=this.TickTimePlain).grid(
         row=3, column=1, sticky=tk.W
     )
 
@@ -313,25 +322,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             entry["StationFaction"]["Name"]
         )  # set controlling faction name
 
-        #  tick check and counter reset
-        response = requests.get(
-            "https://elitebgs.app/api/ebgs/v5/ticks"
-        )  # get current tick and reset if changed
-        tick = response.json()
-        this.CurrentTick = tick[0]["_id"]
-        this.TickTime = tick[0]["time"]
-        print(this.LastTick.get())
-        print(this.CurrentTick)
-        print(this.TickTime)
-        if this.LastTick.get() != this.CurrentTick:
-            this.LastTick.set(this.CurrentTick)
-            this.YesterdayData = this.TodayData
-            this.TodayData = {}
-            this.TimeLabel = tk.Label(this.frame, text=tick_format(this.TickTime)).grid(
-                row=3, column=1, sticky=tk.W
-            )
-            theme.update(this.frame)
-            print("Tick auto reset happened")
+        check_tick()
+
         # set up new sheet at tick reset
         Google_sheet_int()
 
@@ -622,41 +614,6 @@ def display_yesterdaydata():
             )
             CartData.grid(row=x + 1, column=4)
     tab_parent.pack(expand=1, fill="both")
-
-
-def tick_format(ticktime):
-    datetime1 = ticktime.split("T")
-    x = datetime1[0]
-    z = datetime1[1]
-    y = x.split("-")
-    if y[1] == "01":
-        month = "Jan"
-    elif y[1] == "02":
-        month = "Feb"
-    elif y[1] == "03":
-        month = "March"
-    elif y[1] == "04":
-        month = "April"
-    elif y[1] == "05":
-        month = "May"
-    elif y[1] == "06":
-        month = "June"
-    elif y[1] == "07":
-        month = "July"
-    elif y[1] == "08":
-        month = "Aug"
-    elif y[1] == "09":
-        month = "Sep"
-    elif y[1] == "10":
-        month = "Oct"
-    elif y[1] == "11":
-        month = "Nov"
-    elif y[1] == "12":
-        month = "Dec"
-    date1 = y[2] + " " + month
-    time1 = z[0:5]
-    datetimetick = time1 + " UTC " + date1
-    return datetimetick
 
 
 def save_data():
