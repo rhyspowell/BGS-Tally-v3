@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.3.2"
+this.VersionNo = "5.0.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -138,7 +138,7 @@ def plugin_start3(plugin_dir):
     except FileNotFoundError:
         logger.error("missing client secret file for gspread")
 
-    file = os.path.join(this.Dir, "Today Data.txt")
+    file = os.path.join(this.Dir, "Today_Data.json")
 
     if path.exists(file):
         with open(file) as json_file:
@@ -149,7 +149,7 @@ def plugin_start3(plugin_dir):
                 this.TodayData[i] = this.TodayData[x]
                 del this.TodayData[x]
 
-    file = os.path.join(this.Dir, "Yesterday Data.txt")
+    file = os.path.join(this.Dir, "Yesterday_Data.json")
 
     if path.exists(file):
         with open(file) as json_file:
@@ -624,11 +624,11 @@ def save_data():
     config.set("XIndex", this.DataIndex.get())
     config.set("XStation", this.StationFaction.get())
 
-    file = os.path.join(this.Dir, "Today Data.txt")
+    file = os.path.join(this.Dir, "Today_Data.json")
     with open(file, "w") as outfile:
         json.dump(this.TodayData, outfile)
 
-    file = os.path.join(this.Dir, "Yesterday Data.txt")
+    file = os.path.join(this.Dir, "Yesterday_Data.json")
     with open(file, "w") as outfile:
         json.dump(this.YesterdayData, outfile)
 
