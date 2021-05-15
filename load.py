@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.0.0"
+this.VersionNo = "5.1.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -433,6 +433,15 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         faction = entry["Factions"][0]["Faction"]
         amount = entry["Factions"][0]["Amount"]
 
+        system_index = 1
+        for index in this.TodayData:
+            if index[0]["System"] == system:
+                for faction in index[0]["Factions"]:
+                    if faction["Faction"] == faction:
+                        index = system_index
+                        break
+                    else:
+                        system_index += 1
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
 
         for x in range(0, t):
@@ -446,7 +455,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                 system = this.TodayData[this.DataIndex.get()][0]["System"]
                 logger.debug("DataIndex: " + str(this.DataIndex))
                 logger.debug(this.DataIndex.get)
-                index = this.DataIndex.get()
+                #index = this.DataIndex.get()
                 logger.debug("Index: " + str(index))
                 Sheet_Commit_Data(system, index, "Bounty", amount)
         save_data()
@@ -730,7 +739,7 @@ def Sheet_Commit_Data(system, index, event, data):
     cell1 = worksheet.find(system)
     logger.debug("Cell1 is " + str(cell1))
     # Increase the value here by 1 as numbers start from 0
-    FactionRow = cell1.row + 3 + index
+    FactionRow = cell1.row + 1 + index
     logger.debug("factions: " + str(this.FactionNames))
     logger.debug("Faction row: " + str(FactionRow))
     if event == "Mission":
