@@ -1,0 +1,466 @@
+{
+    "1": [{
+        "System": "Wadjali",
+        "SystemAddress": 3932076085986,
+        "Factions": [{
+            "Faction": "Social Wadjali Democrats",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Wadjali Purple Major Network",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Wadjali Dominion",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Nobles of Formorians",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Wadjali Commodities",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Justice Party of Wadjali",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Diamond Frogs",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "2": [{
+        "System": "Madyanmana",
+        "SystemAddress": 2868635510217,
+        "Factions": [{
+            "Faction": "Values Party of Madyanmana",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Madyanmana United Corp.",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Himaphan Co-op",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "New Madyanmana Autocracy",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Madyanmana Electronics Corp.",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Society of Madyanmana",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Crimson Private Military Corporation",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "3": [{
+        "System": "Svalinn",
+        "SystemAddress": 2557619475162,
+        "Factions": [{
+            "Faction": "Workers of Svalinn League",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Svalinn Blue Fortune Industries",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Tong General Corp.",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Conservatives of Svalinn",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Svalinn Silver Rats",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Svalinn Purple Fortune Holdings",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Dingos of Duwali",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "4": [{
+        "System": "Sukree",
+        "SystemAddress": 13863483483577,
+        "Factions": [{
+            "Faction": "Sukree Purple Crew",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Sukree Labour Union",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "New Sukree Nationalists",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Sukree Purple Bridge Services",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Liberals of Sukree",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Colonial Outer Planet Alliance",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "5": [{
+        "System": "Jonai",
+        "SystemAddress": 11664728663497,
+        "Factions": [{
+            "Faction": "Jonai Interstellar",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Democrats of Jonai",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Antanyamai Focus",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Jonai Purple Mob",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "League of Jonai Defence Force",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "United Jonai Worker's Party",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Wolves of Jonai",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "6": [{
+        "System": "Col 285 Sector MJ-G c11-25",
+        "SystemAddress": 6955598910186,
+        "Factions": [{
+            "Faction": "HIP 89294 Nobles",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "HIP 89806 Nobles",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Aucharnie Company",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Alanto Clan",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "HIP 89294 Co-operative",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Co-operative of Alanto",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Fatal Shadows",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 2811671,
+            "CartData": 0
+        }]
+    }],
+    "7": [{
+        "System": "HR 6541",
+        "SystemAddress": 44820334963,
+        "Factions": [{
+            "Faction": "Independents of HR 6541",
+            "MissionPoints": 13,
+            "TradeProfit": 0,
+            "Bounties": 336353,
+            "CartData": 0
+        }, {
+            "Faction": "HR 6541 Ltd",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "HR 6541 Law Party",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "HR 6541 Family",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "HR 6541 Commodities",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Outer Rim Outcast Coalition",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Fatal Shadows",
+            "MissionPoints": 2,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "8": [{
+        "System": "BD+10 3250",
+        "SystemAddress": 2106421414259,
+        "Factions": [{
+            "Faction": "BD+10 3250 Partnership",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "BD+10 3250 Silver Power Systems",
+            "MissionPoints": 8,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Xamentii Purple Vision Int",
+            "MissionPoints": 2,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "BD+10 3250 Purple Boys",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Leaders of BD+10 3250",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "BD+10 3250 Jet Galactic Corp",
+            "MissionPoints": 2,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Outer Rim Outcast Coalition",
+            "MissionPoints": 6,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "9": [{
+        "System": "LTT 15278",
+        "SystemAddress": 2282808709858,
+        "Factions": [{
+            "Faction": "LTT 15278 Commodities",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Umaitis Crimson United Inc",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Regulatory State of LTT 15278",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Revolutionary LTT 15278 Green Party",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "LTT 15278 Gang",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Outer Rim Outcast Coalition",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Light of Humanity",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }]
+    }],
+    "10": [{
+        "System": "LTT 15225",
+        "SystemAddress": 1183229973218,
+        "Factions": [{
+            "Faction": "Independent LTT 15225 Progressive Party",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "LTT 15225 Organisation",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Waricare Progressive Party",
+            "MissionPoints": 0,
+            "TradeProfit": 779088,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Traditional LTT 15225 Nationalists",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "LTT 15225 Raiders",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "LTT 15225 Silver Transport Hldgs",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 0,
+            "CartData": 0
+        }, {
+            "Faction": "Fatal Shadows",
+            "MissionPoints": 0,
+            "TradeProfit": 0,
+            "Bounties": 677720,
+            "CartData": 0
+        }]
+    }]
+}
