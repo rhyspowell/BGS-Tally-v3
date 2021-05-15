@@ -230,6 +230,7 @@ def faction_processing(entry):
     FactionNames = []
     FactionStates = {"Factions": []}
     z = 0
+    logger.debug("Faction processing entry data: " + str(entry))
     for i in entry["Factions"]:
         if i["Name"] != "Pilots' Federation Local Branch":
             FactionNames.append(i["Name"])
