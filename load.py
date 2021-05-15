@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "4.3.0"
+this.VersionNo = "4.3.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -730,7 +730,7 @@ def Sheet_Commit_Data(system, index, event, data):
     logger.debug("Cell1 is " + str(cell1))
     # Increase the value here by 1 as numbers start from 0
     FactionRow = cell1.row + 3 + index
-    logger.debug("factions: " + this.FactionNames)
+    logger.debug("factions: " + str(this.FactionNames))
     logger.debug("Faction row: " + str(FactionRow))
     if event == "Mission":
         cell = worksheet.cell(FactionRow, 2).value
