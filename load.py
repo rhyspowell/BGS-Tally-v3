@@ -435,6 +435,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
         system_index = 1
         for index in this.TodayData:
+            logger.debug("This is the index: " + str(index))
             if index[0]["System"] == system:
                 for faction in index[0]["Factions"]:
                     if faction["Faction"] == faction:
