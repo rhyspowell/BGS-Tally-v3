@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.1.0"
+this.VersionNo = "5.1.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -474,7 +474,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             logger.error("Cell value error: " + str(e))
             current_value = 0
         Total = current_value + entry["Amount"]
-        worksheet.update_cell('R1C8', Total)
+        worksheet.update_cell('H1', Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
