@@ -252,7 +252,7 @@ def faction_processing(entry):
     return FactionNames, FactionStates
 
 
-def get_system_index(faction_name):
+def get_system_index(system, faction_name, action):
     system_index = 1
     data = this.TodayData
     for index in data:
@@ -264,12 +264,12 @@ def get_system_index(faction_name):
             for faction in data[index][0]["Factions"]:
                 print(faction)
                 if faction["Faction"] == faction_name:
-                    index = system_index
+                    current_amount = faction[action]
                     print(index)
                     break
                 else:
                     system_index += 1
-            return system_index
+            return system_index, current_amount
 
 def docked():
     pass
@@ -451,6 +451,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         logger.debug("Running bounty")
         faction = entry["Factions"][0]["Faction"]
         amount = entry["Factions"][0]["Amount"]
+        system = this.TodayData[this.DataIndex.get()][0]["System"]
 
 #        system_index = 1
 #        for index in this.TodayData:
@@ -478,8 +479,9 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 #                logger.debug(this.DataIndex.get)
 #                #index = this.DataIndex.get()
 #                logger.debug("Index: " + str(index))
-        index = get_system_index(faction)
-        Sheet_Commit_Data(system, index, "Bounty", amount)
+        index, current_amount = get_system_index(system, faction, "Bounty")
+        new_amount = current_amount + amount
+        Sheet_Commit_Data(system, index, "Bounty", new_amount)
         save_data()
 
     if entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond":
