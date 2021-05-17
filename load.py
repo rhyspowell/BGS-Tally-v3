@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.1.1"
+this.VersionNo = "5.2.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -470,12 +470,12 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
         worksheet = sh.worksheet(this.TickTime)
         try:
-            current_value = int(worksheet.get('R1C8').first())
+            current_value = int(worksheet.acell('H1').value)
         except Exception as e:
             logger.error("Cell value error: " + str(e))
             current_value = 0
         Total = current_value + entry["Amount"]
-        worksheet.update_cell('H1', Total)
+        worksheet.update('H1', Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
