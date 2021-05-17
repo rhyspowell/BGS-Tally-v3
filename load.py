@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.2.0"
+this.VersionNo = "5.3.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -252,6 +252,25 @@ def faction_processing(entry):
     return FactionNames, FactionStates
 
 
+def get_system_index(faction_name):
+    system_index = 1
+    data = this.TodayData
+    for index in data:
+    #    print("This is the index: " + str(index))
+    #    print("This is the index value: " + str(data[index][0]["Factions"]))
+        if data[index][0]["System"] == system:
+            print("Match")
+            print(data[index][0])
+            for faction in data[index][0]["Factions"]:
+                print(faction)
+                if faction["Faction"] == faction_name:
+                    index = system_index
+                    print(index)
+                    break
+                else:
+                    system_index += 1
+            return system_index
+
 def docked():
     pass
 
@@ -433,32 +452,34 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         faction = entry["Factions"][0]["Faction"]
         amount = entry["Factions"][0]["Amount"]
 
-        system_index = 1
-        for index in this.TodayData:
-            logger.debug("This is the index: " + str(index))
-            if index[0]["System"] == system:
-                for faction in index[0]["Factions"]:
-                    if faction["Faction"] == faction:
-                        index = system_index
-                        break
-                    else:
-                        system_index += 1
-        t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-
-        for x in range(0, t):
-            if (
-                faction
-                == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
-            ):
-                this.TodayData[this.DataIndex.get()][0]["Factions"][x][
-                    "Bounties"
-                ] += amount
-                system = this.TodayData[this.DataIndex.get()][0]["System"]
-                logger.debug("DataIndex: " + str(this.DataIndex))
-                logger.debug(this.DataIndex.get)
-                #index = this.DataIndex.get()
-                logger.debug("Index: " + str(index))
-                Sheet_Commit_Data(system, index, "Bounty", amount)
+#        system_index = 1
+#        for index in this.TodayData:
+#            logger.debug("This is the index: " + str(index))
+#            logger.debug("This is the index value: " + str(this.TodayData[index]))
+#            if index[0]["System"] == system:
+#                for faction in index[0]["Factions"]:
+#                    if faction["Faction"] == faction:
+#                        index = system_index
+#                        break
+#                    else:
+#                        system_index += 1
+#        t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
+#
+#        for x in range(0, t):
+#            if (
+#                faction
+#                == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
+#            ):
+#                this.TodayData[this.DataIndex.get()][0]["Factions"][x][
+#                    "Bounties"
+#                ] += amount
+#                system = this.TodayData[this.DataIndex.get()][0]["System"]
+#                logger.debug("DataIndex: " + str(this.DataIndex))
+#                logger.debug(this.DataIndex.get)
+#                #index = this.DataIndex.get()
+#                logger.debug("Index: " + str(index))
+        index = get_system_index(faction)
+        Sheet_Commit_Data(system, index, "Bounty", amount)
         save_data()
 
     if entry["event"] == "RedeemVoucher" and entry["Type"] == "CombatBond":
@@ -739,7 +760,7 @@ def Sheet_Commit_Data(system, index, event, data):
     worksheet = sh.worksheet(this.TickTime)
     cell1 = worksheet.find(system)
     logger.debug("Cell1 is " + str(cell1))
-    # Increase the value here by 1 as numbers start from 0
+    # Increase the value here by 1 as thats the column header
     FactionRow = cell1.row + 1 + index
     logger.debug("factions: " + str(this.FactionNames))
     logger.debug("Faction row: " + str(FactionRow))
