@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.3.4"
+this.VersionNo = "5.4.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -252,24 +252,30 @@ def faction_processing(entry):
     return FactionNames, FactionStates
 
 
-def get_system_index(system, faction_name, action):
+def get_system_index(system, faction_name, action, amount):
+    #set index to 1 because thats where it starts
     system_index = 1
+    faction_index = 0
+    current_amount = 0
+    # load in the currently stored data
     data = this.TodayData
+    # index over the data array to match system
     for index in data:
-    #    print("This is the index: " + str(index))
-    #    print("This is the index value: " + str(data[index][0]["Factions"]))
         if data[index][0]["System"] == system:
-            print("Match")
-            print(data[index][0])
+            #Index over the faction to get matching faction
             for faction in data[index][0]["Factions"]:
-                print(faction)
                 if faction["Faction"] == faction_name:
                     current_amount = faction[action]
-                    print(index)
+                    new_amount = current_amount + amount
                     break
                 else:
-                    system_index += 1
-            return system_index, current_amount
+                    faction_index += 1
+            this.TodayData[index][0]["Factions"][faction_index][action] = new_amount
+            # +1 due to the spreadsheet not being an array
+            return faction_index + 1, new_amount
+        else:
+            system_index += 1
+
 
 def docked():
     pass
@@ -451,35 +457,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         faction = entry["Factions"][0]["Faction"]
         amount = entry["Factions"][0]["Amount"]
         system = this.TodayData[this.DataIndex.get()][0]["System"]
-
-#        system_index = 1
-#        for index in this.TodayData:
-#            logger.debug("This is the index: " + str(index))
-#            logger.debug("This is the index value: " + str(this.TodayData[index]))
-#            if index[0]["System"] == system:
-#                for faction in index[0]["Factions"]:
-#                    if faction["Faction"] == faction:
-#                        index = system_index
-#                        break
-#                    else:
-#                        system_index += 1
-#        t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-#
-#        for x in range(0, t):
-#            if (
-#                faction
-#                == this.TodayData[this.DataIndex.get()][0]["Factions"][x]["Faction"]
-#            ):
-#                this.TodayData[this.DataIndex.get()][0]["Factions"][x][
-#                    "Bounties"
-#                ] += amount
-#                system = this.TodayData[this.DataIndex.get()][0]["System"]
-#                logger.debug("DataIndex: " + str(this.DataIndex))
-#                logger.debug(this.DataIndex.get)
-#                #index = this.DataIndex.get()
-#                logger.debug("Index: " + str(index))
-        index, current_amount = get_system_index(system, faction, "Bounties")
-        new_amount = current_amount + amount
+        index, new_amount = get_system_index(system, faction, "Bounties", amount)
         Sheet_Commit_Data(system, index, "Bounty", new_amount)
         save_data()
 
@@ -489,6 +467,13 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         { "timestamp":"2021-05-06T23:08:19Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":9098729, "Faction":"Fatal Shadows" }
         """
         logger.debug("Process combat bond")
+        faction = entry["Faction"]
+        amount = entry["Amount"]
+        system = this.TodayData[this.DataIndex.get()][0]["System"]
+        index, new_amount = get_system_index(system, faction, "Combat Bond", amount)
+        Sheet_Commit_Data(system, index, "Combat Bond", new_amount)
+        save_data()
+
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
         worksheet = sh.worksheet(this.TickTime)
         try:
@@ -701,21 +686,21 @@ def Sheet_Insert_New_System(index):
                         "range": "A2:E3",
                         "values": [
                             ["System", system],
-                            ["Faction", "Mission +", "Trade", "Bounties", "Carto Data"],
+                            ["Faction", "Mission +", "Trade", "Bounties", "Carto Data", "Combat Bonds"],
                         ],
                     },
                     {"range": "A4:A11", "values": FactionName},
                     {
                         "range": "B4:E11",
                         "values": [
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
                         ],
                     },
                 ]
@@ -733,21 +718,21 @@ def Sheet_Insert_New_System(index):
                         "range": range1,
                         "values": [
                             ["System", system],
-                            ["Faction", "Mission +", "Trade", "Bounties", "Carto Data"],
+                            ["Faction", "Mission +", "Trade", "Bounties", "Carto Data", "Combat Bonds"],
                         ],
                     },
                     {"range": range2, "values": FactionName},
                     {
                         "range": range3,
                         "values": [
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
-                            [0, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
+                            [0, 0, 0, 0, 0]],
                         ],
                     },
                 ]
@@ -755,6 +740,7 @@ def Sheet_Insert_New_System(index):
 
 
 def Sheet_Commit_Data(system, index, event, data):
+    #TODO: refactor this to make very dry
     logger.debug("Sheet Commit Data")
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
@@ -784,4 +770,9 @@ def Sheet_Commit_Data(system, index, event, data):
     if event == "Trade":
         cell = worksheet.cell(FactionRow, 3).value
         Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 3, Total) 
+        worksheet.update_cell(FactionRow, 3, Total)
+    
+    if event == "Combat Bond":
+        cell = worksheet.cell(FactionRow, 6).value
+        Total = int(cell) + data
+        worksheet.update_cell(FactionRow, 6, Total)
