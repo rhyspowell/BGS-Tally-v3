@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.3.3"
+this.VersionNo = "5.3.4"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -488,7 +488,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         example combat bound
         { "timestamp":"2021-05-06T23:08:19Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":9098729, "Faction":"Fatal Shadows" }
         """
-        logger.debug("Sheet Commit Data")
+        logger.debug("Process combat bond")
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
         worksheet = sh.worksheet(this.TickTime)
         try:
