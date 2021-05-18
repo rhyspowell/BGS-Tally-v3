@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.4.2"
+this.VersionNo = "5.4.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -378,6 +378,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                         "TradeProfit": 0,
                         "Bounties": 0,
                         "CartData": 0,
+                        "Combat Bonds": 0,
                     }
                 )
         else:
@@ -400,6 +401,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                         "TradeProfit": 0,
                         "Bounties": 0,
                         "CartData": 0,
+                        "Combat Bonds": 0,
                     }
                 )
         Sheet_Insert_New_System(x + 1)
@@ -545,6 +547,7 @@ def display_data():
         TPLabel = tk.Label(tab, text="Trade Profit")
         BountyLabel = tk.Label(tab, text="Bounties")
         CDLabel = tk.Label(tab, text="Cart Data")
+        CBLabel = tk.Label(tab, text="Combat Bonds")
 
         FactionLabel.grid(row=0, column=0)
         MPLabel.grid(
@@ -554,6 +557,7 @@ def display_data():
         TPLabel.grid(row=0, column=2)
         BountyLabel.grid(row=0, column=3)
         CDLabel.grid(row=0, column=4)
+        CBLabel.grid(row=0, column=5)
         z = len(this.TodayData[i][0]["Factions"])
         for x in range(0, z):
             FactionName = tk.Label(
@@ -577,6 +581,10 @@ def display_data():
                 tab, text=human_format(this.TodayData[i][0]["Factions"][x]["CartData"])
             )
             CartData.grid(row=x + 1, column=4)
+            CombatData = tk.Label(
+                tab, text=human_format(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
+            )
+            CombatData.grid(row=x + 1, column=5)
     tab_parent.pack(expand=1, fill="both")
 
 
@@ -631,6 +639,10 @@ def display_yesterdaydata():
                 text=human_format(this.YesterdayData[i][0]["Factions"][x]["CartData"]),
             )
             CartData.grid(row=x + 1, column=4)
+            CombatData = tk.Label(
+                tab, text=human_format(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
+            )
+            CombatData.grid(row=x + 1, column=5)
     tab_parent.pack(expand=1, fill="both")
 
 
