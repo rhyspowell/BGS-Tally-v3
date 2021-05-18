@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.3.1"
+this.VersionNo = "5.3.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -479,7 +479,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 #                logger.debug(this.DataIndex.get)
 #                #index = this.DataIndex.get()
 #                logger.debug("Index: " + str(index))
-        index, current_amount = get_system_index(system, faction, "Bounty")
+        index, current_amount = get_system_index(system, faction, "Bounties")
         new_amount = current_amount + amount
         Sheet_Commit_Data(system, index, "Bounty", new_amount)
         save_data()
