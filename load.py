@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.3.2"
+this.VersionNo = "5.3.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -321,7 +321,6 @@ def ussdrop():
 
 
 def journal_entry(cmdr, is_beta, system, station, entry, state):
-    logger.debug("journal_entry function")
 
     if this.Status.get() != "Active":
         print("Paused")
