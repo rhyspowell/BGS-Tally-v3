@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.4.4"
+this.VersionNo = "5.4.5"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -562,6 +562,7 @@ def display_data():
         BountyLabel.grid(row=0, column=3)
         CDLabel.grid(row=0, column=4)
         CBLabel.grid(row=0, column=5)
+        
         z = len(this.TodayData[i][0]["Factions"])
         for x in range(0, z):
             FactionName = tk.Label(
@@ -607,6 +608,7 @@ def display_yesterdaydata():
         TPLabel = tk.Label(tab, text="Trade Profit")
         BountyLabel = tk.Label(tab, text="Bounties")
         CDLabel = tk.Label(tab, text="Cart Data")
+        CBLabel = tk.Label(tab, text="Combat Bonds")
 
         FactionLabel.grid(row=0, column=0)
         MPLabel.grid(
@@ -616,6 +618,8 @@ def display_yesterdaydata():
         TPLabel.grid(row=0, column=2)
         BountyLabel.grid(row=0, column=3)
         CDLabel.grid(row=0, column=4)
+        CBLabel.grid(row=0, column=5)
+
         z = len(this.YesterdayData[i][0]["Factions"])
         for x in range(0, z):
             FactionName = tk.Label(
@@ -699,7 +703,7 @@ def Sheet_Insert_New_System(index):
             worksheet.batch_update(
                 [
                     {
-                        "range": "A2:E3",
+                        "range": "A2:F3",
                         "values": [
                             ["System", system],
                             ["Faction", "Mission +", "Trade", "Bounties", "Carto Data", "Combat Bonds"],
@@ -707,7 +711,7 @@ def Sheet_Insert_New_System(index):
                     },
                     {"range": "A4:A11", "values": FactionName},
                     {
-                        "range": "B4:E11",
+                        "range": "B4:F11",
                         "values": [
                             [0, 0, 0, 0, 0],
                             [0, 0, 0, 0, 0],
@@ -725,9 +729,9 @@ def Sheet_Insert_New_System(index):
             row = no_of_systems * 11 + 2
             no_of_systems += 1
             worksheet.update("B1", no_of_systems)
-            range1 = "A" + str(row) + ":E" + str(row + 1)
+            range1 = "A" + str(row) + ":F" + str(row + 1)
             range2 = "A" + str(row + 2) + ":A" + str(row + 10)
-            range3 = "B" + str(row + 2) + ":E" + str(row + 10)
+            range3 = "B" + str(row + 2) + ":F" + str(row + 10)
             worksheet.batch_update(
                 [
                     {
