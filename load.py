@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.4.3"
+this.VersionNo = "5.4.4"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -265,9 +265,13 @@ def get_system_index(system, faction_name, action, amount):
             #Index over the faction to get matching faction
             for faction in data[index][0]["Factions"]:
                 if faction["Faction"] == faction_name:
-                    current_amount = faction[action]
-                    new_amount = current_amount + amount
-                    break
+                    try:
+                        current_amount = faction[action]
+                        new_amount = current_amount + amount
+                        break
+                    except KeyError:
+                        logger.debug("The data is missing the action: " + action)
+                        new_amount = 0 + amount
                 else:
                     faction_index += 1
             this.TodayData[index][0]["Factions"][faction_index][action] = new_amount
