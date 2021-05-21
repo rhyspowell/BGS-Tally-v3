@@ -3,6 +3,7 @@ import logging
 import myNotebook as nb
 import sys
 import json
+import millify
 import requests
 from config import config, appname
 from theme import theme
@@ -23,7 +24,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.4.6"
+this.VersionNo = "5.5.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -253,7 +254,7 @@ def faction_processing(entry):
 
 
 def get_system_index(system, faction_name, action, amount):
-    #set index to 1 because thats where it starts
+    # set index to 1 because thats where it starts
     system_index = 1
     faction_index = 0
     current_amount = 0
@@ -262,7 +263,7 @@ def get_system_index(system, faction_name, action, amount):
     # index over the data array to match system
     for index in data:
         if data[index][0]["System"] == system:
-            #Index over the faction to get matching faction
+            # Index over the faction to get matching faction
             for faction in data[index][0]["Factions"]:
                 if faction["Faction"] == faction_name:
                     try:
@@ -427,7 +428,10 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                             system = this.TodayData[y][0]["System"]
 
                             for z in range(0, t):
-                                if fe3 == this.TodayData[y][0]["Factions"][z]["Faction"]:
+                                if (
+                                    fe3
+                                    == this.TodayData[y][0]["Factions"][z]["Faction"]
+                                ):
                                     this.TodayData[y][0]["Factions"][z][
                                         "MissionPoints"
                                     ] += inf
@@ -486,12 +490,12 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
         worksheet = sh.worksheet(this.TickTime)
         try:
-            current_value = int(worksheet.acell('H1').value)
+            current_value = int(worksheet.acell("H1").value)
         except Exception as e:
             logger.error("Cell value error: " + str(e))
             current_value = 0
         Total = current_value + entry["Amount"]
-        worksheet.update('H1', Total)
+        worksheet.update("H1", Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
         t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
@@ -527,17 +531,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         ussdrop()
 
 
-def human_format(num):
-    num = float("{:.3g}".format(num))
-    magnitude = 0
-    while abs(num) >= 1000:
-        magnitude += 1
-        num /= 1000.0
-    return "{}{}".format(
-        "{:f}".format(num).rstrip("0").rstrip("."), ["", "K", "M", "B", "T"][magnitude]
-    )
-
-
 def display_data():
     form = tk.Toplevel(this.frame)
     form.title("BGS Tally v" + this.VersionNo + " - Data Today")
@@ -565,7 +558,7 @@ def display_data():
         BountyLabel.grid(row=0, column=3)
         CDLabel.grid(row=0, column=4)
         CBLabel.grid(row=0, column=5)
-        
+
         z = len(this.TodayData[i][0]["Factions"])
         for x in range(0, z):
             FactionName = tk.Label(
@@ -578,19 +571,19 @@ def display_data():
             Missions.grid(row=x + 1, column=1)
             Trade = tk.Label(
                 tab,
-                text=human_format(this.TodayData[i][0]["Factions"][x]["TradeProfit"]),
+                text=millify(this.TodayData[i][0]["Factions"][x]["TradeProfit"]),
             )
             Trade.grid(row=x + 1, column=2)
             Bounty = tk.Label(
-                tab, text=human_format(this.TodayData[i][0]["Factions"][x]["Bounties"])
+                tab, text=millify(this.TodayData[i][0]["Factions"][x]["Bounties"])
             )
             Bounty.grid(row=x + 1, column=3)
             CartData = tk.Label(
-                tab, text=human_format(this.TodayData[i][0]["Factions"][x]["CartData"])
+                tab, text=millify(this.TodayData[i][0]["Factions"][x]["CartData"])
             )
             CartData.grid(row=x + 1, column=4)
             CombatData = tk.Label(
-                tab, text=human_format(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
+                tab, text=millify(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
             )
             CombatData.grid(row=x + 1, column=5)
     tab_parent.pack(expand=1, fill="both")
@@ -635,23 +628,21 @@ def display_yesterdaydata():
             Missions.grid(row=x + 1, column=1)
             Trade = tk.Label(
                 tab,
-                text=human_format(
-                    this.YesterdayData[i][0]["Factions"][x]["TradeProfit"]
-                ),
+                text=millify(this.YesterdayData[i][0]["Factions"][x]["TradeProfit"]),
             )
             Trade.grid(row=x + 1, column=2)
             Bounty = tk.Label(
                 tab,
-                text=human_format(this.YesterdayData[i][0]["Factions"][x]["Bounties"]),
+                text=millify(this.YesterdayData[i][0]["Factions"][x]["Bounties"]),
             )
             Bounty.grid(row=x + 1, column=3)
             CartData = tk.Label(
                 tab,
-                text=human_format(this.YesterdayData[i][0]["Factions"][x]["CartData"]),
+                text=millify(this.YesterdayData[i][0]["Factions"][x]["CartData"]),
             )
             CartData.grid(row=x + 1, column=4)
             CombatData = tk.Label(
-                tab, text=human_format(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
+                tab, text=millify(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
             )
             CombatData.grid(row=x + 1, column=5)
     tab_parent.pack(expand=1, fill="both")
@@ -709,7 +700,14 @@ def Sheet_Insert_New_System(index):
                         "range": "A2:F3",
                         "values": [
                             ["System", system],
-                            ["Faction", "Mission +", "Trade", "Bounties", "Carto Data", "Combat Bonds"],
+                            [
+                                "Faction",
+                                "Mission +",
+                                "Trade",
+                                "Bounties",
+                                "Carto Data",
+                                "Combat Bonds",
+                            ],
                         ],
                     },
                     {"range": "A4:A11", "values": FactionName},
@@ -741,7 +739,14 @@ def Sheet_Insert_New_System(index):
                         "range": range1,
                         "values": [
                             ["System", system],
-                            ["Faction", "Mission +", "Trade", "Bounties", "Carto Data", "Combat Bonds"],
+                            [
+                                "Faction",
+                                "Mission +",
+                                "Trade",
+                                "Bounties",
+                                "Carto Data",
+                                "Combat Bonds",
+                            ],
                         ],
                     },
                     {"range": range2, "values": FactionName},
@@ -763,7 +768,7 @@ def Sheet_Insert_New_System(index):
 
 
 def Sheet_Commit_Data(system, index, event, data):
-    #TODO: refactor this to make very dry
+    # TODO: refactor this to make very dry
     logger.debug("Sheet Commit Data")
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
@@ -786,10 +791,10 @@ def Sheet_Commit_Data(system, index, event, data):
 
     if event == "Trade":
         col_num = 3
-    
+
     if event == "Combat Bond":
         col_num = 6
-    
+
     cell = worksheet.cell(FactionRow, col_num).value
     Total = int(cell) + data
     worksheet.update_cell(FactionRow, col_num, Total)
