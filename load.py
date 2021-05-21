@@ -411,27 +411,30 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         Sheet_Insert_New_System(x + 1)
 
     if entry["event"] == "MissionCompleted":  # get mission influence value
-        fe = entry["FactionEffects"]
-        print("mission completed")
-        for i in fe:
-            fe3 = i["Faction"]
-            print(fe3)
-            fe4 = i["Influence"]
-            for x in fe4:
-                fe6 = x["SystemAddress"]
-                inf = len(x["Influence"])
-                for y in this.TodayData:
-                    if fe6 == this.TodayData[y][0]["SystemAddress"]:
-                        t = len(this.TodayData[y][0]["Factions"])
-                        system = this.TodayData[y][0]["System"]
+        try:
+            fe = entry["FactionEffects"]
+            print("mission completed")
+            for i in fe:
+                fe3 = i["Faction"]
+                print(fe3)
+                fe4 = i["Influence"]
+                for x in fe4:
+                    fe6 = x["SystemAddress"]
+                    inf = len(x["Influence"])
+                    for y in this.TodayData:
+                        if fe6 == this.TodayData[y][0]["SystemAddress"]:
+                            t = len(this.TodayData[y][0]["Factions"])
+                            system = this.TodayData[y][0]["System"]
 
-                        for z in range(0, t):
-                            if fe3 == this.TodayData[y][0]["Factions"][z]["Faction"]:
-                                this.TodayData[y][0]["Factions"][z][
-                                    "MissionPoints"
-                                ] += inf
-                                Sheet_Commit_Data(system, z, "Mission", inf)
-        save_data()
+                            for z in range(0, t):
+                                if fe3 == this.TodayData[y][0]["Factions"][z]["Faction"]:
+                                    this.TodayData[y][0]["Factions"][z][
+                                        "MissionPoints"
+                                    ] += inf
+                                    Sheet_Commit_Data(system, z, "Mission", inf)
+            save_data()
+        except KeyError:
+            logger.error("Mission structure oops up side your head")
 
     if (
         entry["event"] == "SellExplorationData"
@@ -771,28 +774,22 @@ def Sheet_Commit_Data(system, index, event, data):
     FactionRow = cell1.row + 1 + index
     logger.debug("factions: " + str(this.FactionNames))
     logger.debug("Faction row: " + str(FactionRow))
+
     if event == "Mission":
-        cell = worksheet.cell(FactionRow, 2).value
-        Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 2, Total)
+        col_num = 2
 
     if event == "Expo":
-        cell = worksheet.cell(FactionRow, 5).value
-        Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 5, Total)
+        col_num = 5
 
     if event == "Bounty":
-        cell = worksheet.cell(FactionRow, 4).value
-        logger.debug("bounty cell" + str(cell))
-        Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 4, Total)
+        col_num = 4
 
     if event == "Trade":
-        cell = worksheet.cell(FactionRow, 3).value
-        Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 3, Total)
+        col_num = 3
     
     if event == "Combat Bond":
-        cell = worksheet.cell(FactionRow, 6).value
-        Total = int(cell) + data
-        worksheet.update_cell(FactionRow, 6, Total)
+        col_num = 6
+    
+    cell = worksheet.cell(FactionRow, col_num).value
+    Total = int(cell) + data
+    worksheet.update_cell(FactionRow, col_num, Total)
