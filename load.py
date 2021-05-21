@@ -70,8 +70,8 @@ def plugin_prefs(parent, cmdr, is_beta):
     frame = nb.Frame(parent)
     nb.Label(frame, text="BGS Tally v" + this.VersionNo).grid(column=0, sticky=tk.W)
     """
-   reset = nb.Button(frame, text="Reset Counter").place(x=0 , y=290)
-   """
+    reset = nb.Button(frame, text="Reset Counter").place(x=0 , y=290)
+    """
     nb.Checkbutton(
         frame,
         text="Make BGS Tally Active",
