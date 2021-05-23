@@ -12,19 +12,12 @@ import os.path
 import gspread
 from gspread_formatting import *
 from os import path
-
-try:
-    # Python 2
-    import Tkinter as tk
-    import ttk
-except ModuleNotFoundError:
-    # Python 3
-    import tkinter as tk
-    from tkinter import ttk
+import tkinter as tk
+from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.5.1"
+this.VersionNo = "5.5.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
