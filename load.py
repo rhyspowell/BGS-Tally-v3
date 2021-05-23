@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.5.2"
+this.VersionNo = "5.6.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -203,10 +203,10 @@ def plugin_app(parent):
             ),
         )
 
-    tk.Button(this.frame, text="Data Today", command=display_data).grid(
+    tk.Button(this.frame, text="Data Today", command=display_data("today")).grid(
         row=1, column=0, padx=3
     )
-    tk.Button(this.frame, text="Data Yesterday", command=display_yesterdaydata).grid(
+    tk.Button(this.frame, text="Data Yesterday", command=display_data("yesterday")).grid(
         row=1, column=1, padx=3
     )
     tk.Label(this.frame, text="Status:").grid(row=2, column=0, sticky=tk.W)
@@ -527,7 +527,16 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         ussdrop()
 
 
-def display_data():
+def display_data(day):
+    logger.debug("Display Data called")
+    if day == "today":
+        data = this.TodayData
+    elif day == "yesterday":
+        data = this.YesterdayData
+    else:
+        data = "Incorrect day format"
+    
+    logger.debug(str(data))
     form = tk.Toplevel(this.frame)
     form.title("BGS Tally v" + this.VersionNo + " - Data Today")
     form.geometry("500x280")
@@ -535,9 +544,9 @@ def display_data():
 
     tab_parent = ttk.Notebook(form)
 
-    for i in this.TodayData:
+    for i in data:
         tab = ttk.Frame(tab_parent)
-        tab_parent.add(tab, text=this.TodayData[i][0]["System"])
+        tab_parent.add(tab, text=data[i][0]["System"])
         FactionLabel = tk.Label(tab, text="Faction")
         MPLabel = tk.Label(tab, text="Misson Points")
         TPLabel = tk.Label(tab, text="Trade Profit")
@@ -555,90 +564,31 @@ def display_data():
         CDLabel.grid(row=0, column=4)
         CBLabel.grid(row=0, column=5)
 
-        z = len(this.TodayData[i][0]["Factions"])
+        z = len(data[i][0]["Factions"])
         for x in range(0, z):
             FactionName = tk.Label(
-                tab, text=this.TodayData[i][0]["Factions"][x]["Faction"]
+                tab, text=data[i][0]["Factions"][x]["Faction"]
             )
             FactionName.grid(row=x + 1, column=0, sticky=tk.W)
             Missions = tk.Label(
-                tab, text=this.TodayData[i][0]["Factions"][x]["MissionPoints"]
+                tab, text=data[i][0]["Factions"][x]["MissionPoints"]
             )
             Missions.grid(row=x + 1, column=1)
             Trade = tk.Label(
                 tab,
-                text=millify(this.TodayData[i][0]["Factions"][x]["TradeProfit"]),
+                text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
             )
             Trade.grid(row=x + 1, column=2)
             Bounty = tk.Label(
-                tab, text=millify(this.TodayData[i][0]["Factions"][x]["Bounties"])
+                tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
             )
             Bounty.grid(row=x + 1, column=3)
             CartData = tk.Label(
-                tab, text=millify(this.TodayData[i][0]["Factions"][x]["CartData"])
+                tab, text=millify(data[i][0]["Factions"][x]["CartData"])
             )
             CartData.grid(row=x + 1, column=4)
             CombatData = tk.Label(
-                tab, text=millify(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
-            )
-            CombatData.grid(row=x + 1, column=5)
-    tab_parent.pack(expand=1, fill="both")
-
-
-def display_yesterdaydata():
-    form = tk.Toplevel(this.frame)
-    form.title("BGS Tally v" + this.VersionNo + " - Data Yesterday")
-    form.geometry("500x280")
-
-    tab_parent = ttk.Notebook(form)
-
-    for i in this.YesterdayData:
-        tab = ttk.Frame(tab_parent)
-        tab_parent.add(tab, text=this.YesterdayData[i][0]["System"])
-        FactionLabel = tk.Label(tab, text="Faction")
-        MPLabel = tk.Label(tab, text="Misson Points")
-        TPLabel = tk.Label(tab, text="Trade Profit")
-        BountyLabel = tk.Label(tab, text="Bounties")
-        CDLabel = tk.Label(tab, text="Cart Data")
-        CBLabel = tk.Label(tab, text="Combat Bonds")
-
-        FactionLabel.grid(row=0, column=0)
-        MPLabel.grid(
-            row=0,
-            column=1,
-        )
-        TPLabel.grid(row=0, column=2)
-        BountyLabel.grid(row=0, column=3)
-        CDLabel.grid(row=0, column=4)
-        CBLabel.grid(row=0, column=5)
-
-        z = len(this.YesterdayData[i][0]["Factions"])
-        for x in range(0, z):
-            FactionName = tk.Label(
-                tab, text=this.YesterdayData[i][0]["Factions"][x]["Faction"]
-            )
-            FactionName.grid(row=x + 1, column=0, sticky=tk.W)
-            Missions = tk.Label(
-                tab, text=this.YesterdayData[i][0]["Factions"][x]["MissionPoints"]
-            )
-            Missions.grid(row=x + 1, column=1)
-            Trade = tk.Label(
-                tab,
-                text=millify(this.YesterdayData[i][0]["Factions"][x]["TradeProfit"]),
-            )
-            Trade.grid(row=x + 1, column=2)
-            Bounty = tk.Label(
-                tab,
-                text=millify(this.YesterdayData[i][0]["Factions"][x]["Bounties"]),
-            )
-            Bounty.grid(row=x + 1, column=3)
-            CartData = tk.Label(
-                tab,
-                text=millify(this.YesterdayData[i][0]["Factions"][x]["CartData"]),
-            )
-            CartData.grid(row=x + 1, column=4)
-            CombatData = tk.Label(
-                tab, text=millify(this.TodayData[i][0]["Factions"][x]["Combat Bonds"])
+                tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
             )
             CombatData.grid(row=x + 1, column=5)
     tab_parent.pack(expand=1, fill="both")
