@@ -24,7 +24,7 @@ except ModuleNotFoundError:
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.5.0"
+this.VersionNo = "5.5.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -232,6 +232,7 @@ def faction_processing(entry):
     FactionStates = {"Factions": []}
     z = 0
     logger.debug("Faction processing entry data: " + str(entry))
+    # TODO: Handle systems with no factions 
     for i in entry["Factions"]:
         if i["Name"] != "Pilots' Federation Local Branch":
             FactionNames.append(i["Name"])
@@ -260,11 +261,13 @@ def get_system_index(system, faction_name, action, amount):
     current_amount = 0
     # load in the currently stored data
     data = this.TodayData
+    logger.debug("Data: " + str(data))
     # index over the data array to match system
     for index in data:
         if data[index][0]["System"] == system:
             # Index over the faction to get matching faction
             for faction in data[index][0]["Factions"]:
+                logger.debug("faction: " + str(faction))
                 if faction["Faction"] == faction_name:
                     try:
                         current_amount = faction[action]
