@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.4"
+this.VersionNo = "5.6.5"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -203,10 +203,10 @@ def plugin_app(parent):
             ),
         )
 
-    tk.Button(this.frame, text="Data Today", command=display_data("today")).grid(
+    tk.Button(this.frame, text="Data Today", command=today_data).grid(
         row=1, column=0, padx=3
     )
-    tk.Button(this.frame, text="Data Yesterday", command=display_data("yesterday")).grid(
+    tk.Button(this.frame, text="Data Yesterday", command=yesterday_data).grid(
         row=1, column=1, padx=3
     )
     tk.Label(this.frame, text="Status:").grid(row=2, column=0, sticky=tk.W)
