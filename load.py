@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.1"
+this.VersionNo = "5.6.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -481,8 +481,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         faction = entry["Faction"]
         amount = entry["Amount"]
         system = this.TodayData[this.DataIndex.get()][0]["System"]
-        index, new_amount = get_system_index(system, faction, "Combat Bond", amount)
-        Sheet_Commit_Data(system, index, "Combat Bond", new_amount)
+        index, new_amount = get_system_index(system, faction, "Combat Bonds", amount)
+        Sheet_Commit_Data(system, index, "Combat Bonds", new_amount)
         save_data()
 
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
@@ -739,7 +739,7 @@ def Sheet_Commit_Data(system, index, event, data):
     if event == "Trade":
         col_num = 3
 
-    if event == "Combat Bond":
+    if event == "Combat Bonds":
         col_num = 6
 
     cell = worksheet.cell(FactionRow, col_num).value
