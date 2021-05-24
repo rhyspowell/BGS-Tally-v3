@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.2"
+this.VersionNo = "5.6.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -252,6 +252,7 @@ def get_system_index(system, faction_name, action, amount):
     system_index = 1
     faction_index = 0
     current_amount = 0
+    new_amount = 0
     # load in the currently stored data
     data = this.TodayData
     logger.debug("Data: " + str(data))
@@ -271,6 +272,7 @@ def get_system_index(system, faction_name, action, amount):
                         new_amount = 0 + amount
                 else:
                     faction_index += 1
+            logger.debug("New amount: " + str(new_amount))
             this.TodayData[index][0]["Factions"][faction_index][action] = new_amount
             # +1 due to the spreadsheet not being an array
             return faction_index + 1, new_amount
