@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.7"
+this.VersionNo = "5.6.8"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -593,27 +593,27 @@ def display_data(day):
                 tab, text=data[i][0]["Factions"][x]["MissionPoints"]
             )
             Missions.grid(row=x + 1, column=1)
-            logger.debug("Trade")
-            Trade = tk.Label(
-                tab,
-                text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
-            )
-            Trade.grid(row=x + 1, column=2)
-            logger.debug("Bounty")
-            Bounty = tk.Label(
-                tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
-            )
-            Bounty.grid(row=x + 1, column=3)
-            logger.debug("Cart")
-            CartData = tk.Label(
-                tab, text=millify(data[i][0]["Factions"][x]["CartData"])
-            )
-            CartData.grid(row=x + 1, column=4)
-            logger.debug("Combat")
-            CombatData = tk.Label(
-                tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
-            )
-            CombatData.grid(row=x + 1, column=5)
+            # logger.debug("Trade")
+            # Trade = tk.Label(
+            #     tab,
+            #     text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
+            # )
+            # Trade.grid(row=x + 1, column=2)
+            # logger.debug("Bounty")
+            # Bounty = tk.Label(
+            #     tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
+            # )
+            # Bounty.grid(row=x + 1, column=3)
+            # logger.debug("Cart")
+            # CartData = tk.Label(
+            #     tab, text=millify(data[i][0]["Factions"][x]["CartData"])
+            # )
+            # CartData.grid(row=x + 1, column=4)
+            # logger.debug("Combat")
+            # CombatData = tk.Label(
+            #     tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
+            # )
+            # CombatData.grid(row=x + 1, column=5)
     logger.debug("tab parent")
     tab_parent.pack(expand=1, fill="both")
 
