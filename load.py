@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.3"
+this.VersionNo = "5.6.4"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -531,6 +531,16 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         ussdrop()
 
 
+
+# Allow TKinter to get its correct data
+def today_data():
+    return display_data("today")
+
+
+def yesterday_data():
+    return display_data("yesterday")
+    
+    
 def display_data(day):
     logger.debug("Display Data called")
     if day == "today":
