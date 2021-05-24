@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.0"
+this.VersionNo = "5.6.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -337,6 +337,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         entry["event"] == "Location"
         or entry["event"] == "FSDJump"
         or entry["event"] == "CarrierJump"
+        # TODO: #3 add SupercruiseEntry
+        # { "timestamp":"2021-05-24T10:04:11Z", "event":"SupercruiseEntry", "Taxi":true, "Multicrew":false, "StarSystem":"BD+47 2391", "SystemAddress":1458107912922 }
     ):  # get factions
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
@@ -714,7 +716,6 @@ def Sheet_Insert_New_System(index):
 
 
 def Sheet_Commit_Data(system, index, event, data):
-    # TODO: refactor this to make very dry
     logger.debug("Sheet Commit Data")
     gc = gspread.service_account(filename=this.cred)
     sh = gc.open("BSG Tally Store")
