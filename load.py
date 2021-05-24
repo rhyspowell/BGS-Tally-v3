@@ -559,6 +559,7 @@ def display_data(day):
     tab_parent = ttk.Notebook(form)
 
     for i in data:
+        logger.debug("Inside data loop")
         tab = ttk.Frame(tab_parent)
         tab_parent.add(tab, text=data[i][0]["System"])
         FactionLabel = tk.Label(tab, text="Faction")
@@ -568,6 +569,7 @@ def display_data(day):
         CDLabel = tk.Label(tab, text="Cart Data")
         CBLabel = tk.Label(tab, text="Combat Bonds")
 
+        logger.debug("faction label gird")
         FactionLabel.grid(row=0, column=0)
         MPLabel.grid(
             row=0,
@@ -578,33 +580,41 @@ def display_data(day):
         CDLabel.grid(row=0, column=4)
         CBLabel.grid(row=0, column=5)
 
+        logger.debug("Work out faction length")
         z = len(data[i][0]["Factions"])
         for x in range(0, z):
+            logger.debug("faction")
             FactionName = tk.Label(
                 tab, text=data[i][0]["Factions"][x]["Faction"]
             )
             FactionName.grid(row=x + 1, column=0, sticky=tk.W)
+            logger.debug("missions")
             Missions = tk.Label(
                 tab, text=data[i][0]["Factions"][x]["MissionPoints"]
             )
             Missions.grid(row=x + 1, column=1)
+            logger.debug("Trade")
             Trade = tk.Label(
                 tab,
                 text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
             )
             Trade.grid(row=x + 1, column=2)
+            logger.debug("Bounty")
             Bounty = tk.Label(
                 tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
             )
             Bounty.grid(row=x + 1, column=3)
+            logger.debug("Cart")
             CartData = tk.Label(
                 tab, text=millify(data[i][0]["Factions"][x]["CartData"])
             )
             CartData.grid(row=x + 1, column=4)
+            logger.debug("Combat")
             CombatData = tk.Label(
                 tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
             )
             CombatData.grid(row=x + 1, column=5)
+    logger.debug("tab parent")
     tab_parent.pack(expand=1, fill="both")
 
 
