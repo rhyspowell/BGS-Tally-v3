@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.5"
+this.VersionNo = "5.6.6"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -154,11 +154,11 @@ def plugin_start3(plugin_dir):
                 this.YesterdayData[i] = this.YesterdayData[x]
                 del this.YesterdayData[x]
 
-    this.LastTick = tk.StringVar(value=config.get("XLastTick"))
-    this.TickTime = tk.StringVar(value=config.get("XTickTime"))
-    this.Status = tk.StringVar(value=config.get("XStatus"))
-    this.DataIndex = tk.IntVar(value=config.get("xIndex"))
-    this.StationFaction = tk.StringVar(value=config.get("XStation"))
+    this.LastTick = tk.StringVar(value=config.get_str("XLastTick"))
+    this.TickTime = tk.StringVar(value=config.get_str("XTickTime"))
+    this.Status = tk.StringVar(value=config.get_str("XStatus"))
+    this.DataIndex = tk.IntVar(value=config.get_int("xIndex"))
+    this.StationFaction = tk.StringVar(value=config.get_str("XStation"))
 
     check_tick()
     # create google sheet
