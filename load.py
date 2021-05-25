@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.10"
+this.VersionNo = "5.6.11"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -589,8 +589,8 @@ def display_data(day):
             Missions = tk.Label(tab, text=data[i][0]["Factions"][x]["MissionPoints"])
             Missions.grid(row=x + 1, column=1)
             logger.debug("Trade")
-            tradevalue = millify(data[i][0]["Factions"][x]["TradeProfit"])
             try:
+                tradevalue = millify(data[i][0]["Factions"][x]["TradeProfit"])
                 Trade = tk.Label(
                     tab,
                     text=tradevalue
