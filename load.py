@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.12"
+this.VersionNo = "5.6.13"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -581,40 +581,38 @@ def display_data(day):
 
         logger.debug("Work out faction length")
         z = len(data[i][0]["Factions"])
-        for x in range(0, z):
-            logger.debug("faction")
-            FactionName = tk.Label(tab, text=data[i][0]["Factions"][x]["Faction"])
-            FactionName.grid(row=x + 1, column=0, sticky=tk.W)
-            logger.debug("missions")
-            Missions = tk.Label(tab, text=data[i][0]["Factions"][x]["MissionPoints"])
-            Missions.grid(row=x + 1, column=1)
-            logger.debug("Trade")
-            try:
+        try:
+            for x in range(0, z):
+                logger.debug("faction")
+                FactionName = tk.Label(tab, text=data[i][0]["Factions"][x]["Faction"])
+                FactionName.grid(row=x + 1, column=0, sticky=tk.W)
+                logger.debug("missions")
+                Missions = tk.Label(tab, text=data[i][0]["Factions"][x]["MissionPoints"])
+                Missions.grid(row=x + 1, column=1)
+                logger.debug("Trade")
                 tradevalue = millify.millify(data[i][0]["Factions"][x]["TradeProfit"])
                 Trade = tk.Label(
                     tab,
                     text=tradevalue
                 )
                 Trade.grid(row=x + 1, column=2)
-            except Exception as e:
-                logger.debug("Trade failed for exception" + str(e))
-            logger.debug("Bounty")
-            Bounty = tk.Label(
-                tab, text=millify.millify(data[i][0]["Factions"][x]["Bounties"])
-            )
-            Bounty.grid(row=x + 1, column=3)
-            logger.debug("Cart")
-            cartvalue = millify(data[i][0]["Factions"][x]["CartData"])
-            CartData = tk.Label(
-                tab, text=cartvalue
-            )
-            CartData.grid(row=x + 1, column=4)
-            logger.debug("Combat")
-            combatvalue = millify(data[i][0]["Factions"][x]["Combat Bonds"])
-            CombatData = tk.Label(
-                tab, text=combatvalue
-            )
-            CombatData.grid(row=x + 1, column=5)
+                logger.debug("Bounty")
+                Bounty = tk.Label(
+                    tab, text=millify.millify(data[i][0]["Factions"][x]["Bounties"])
+                )
+                Bounty.grid(row=x + 1, column=3)
+                logger.debug("Cart")
+                CartData = tk.Label(
+                    tab, text=millify.millify(data[i][0]["Factions"][x]["CartData"])
+                )
+                CartData.grid(row=x + 1, column=4)
+                logger.debug("Combat")
+                CombatData = tk.Label(
+                    tab, text=millify.millify(data[i][0]["Factions"][x]["Combat Bonds"])
+                )
+                CombatData.grid(row=x + 1, column=5)
+        except Exception as e:
+            logger.debug("Tab display error: " + str(e))
     logger.debug("tab parent")
     tab_parent.pack(expand=1, fill="both")
 
