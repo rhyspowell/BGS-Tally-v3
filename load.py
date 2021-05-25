@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.11"
+this.VersionNo = "5.6.12"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -590,7 +590,7 @@ def display_data(day):
             Missions.grid(row=x + 1, column=1)
             logger.debug("Trade")
             try:
-                tradevalue = millify(data[i][0]["Factions"][x]["TradeProfit"])
+                tradevalue = millify.millify(data[i][0]["Factions"][x]["TradeProfit"])
                 Trade = tk.Label(
                     tab,
                     text=tradevalue
@@ -599,9 +599,8 @@ def display_data(day):
             except Exception as e:
                 logger.debug("Trade failed for exception" + str(e))
             logger.debug("Bounty")
-            bountyvalue = millify(data[i][0]["Factions"][x]["Bounties"])
             Bounty = tk.Label(
-                tab, text=bountyvalue
+                tab, text=millify.millify(data[i][0]["Factions"][x]["Bounties"])
             )
             Bounty.grid(row=x + 1, column=3)
             logger.debug("Cart")
