@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.14"
+this.VersionNo = "5.6.15"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -544,14 +544,17 @@ def display_data(day):
     logger.debug("Display Data called")
     if day == "today":
         data = this.TodayData
+        formtitle = "Today"
     elif day == "yesterday":
         data = this.YesterdayData
+        formtitle = "Yesterday"
     else:
-        data = "Incorrect day format"
+        logger.debug("Incorrect day format for tab data")
+        formtitle = "Incorrect day format"
 
     logger.debug(str(data))
     form = tk.Toplevel(this.frame)
-    form.title("BGS Tally v" + this.VersionNo + " - Data Today")
+    form.title("BGS Tally v" + this.VersionNo + " - Data " + formtitle)
     form.geometry("500x280")
     # tk.Label(this.frame, text="BGS Tally v" + this.VersionNo)
 
