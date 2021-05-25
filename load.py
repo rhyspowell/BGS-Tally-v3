@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.9"
+this.VersionNo = "5.6.10"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -589,27 +589,31 @@ def display_data(day):
             Missions = tk.Label(tab, text=data[i][0]["Factions"][x]["MissionPoints"])
             Missions.grid(row=x + 1, column=1)
             logger.debug("Trade")
+            tradevalue = millify(data[i][0]["Factions"][x]["TradeProfit"])
             try:
                 Trade = tk.Label(
                     tab,
-                    text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
+                    text=tradevalue
                 )
                 Trade.grid(row=x + 1, column=2)
             except Exception as e:
                 logger.debug("Trade failed for exception" + str(e))
             logger.debug("Bounty")
+            bountyvalue = millify(data[i][0]["Factions"][x]["Bounties"])
             Bounty = tk.Label(
-                tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
+                tab, text=bountyvalue
             )
             Bounty.grid(row=x + 1, column=3)
             logger.debug("Cart")
+            cartvalue = millify(data[i][0]["Factions"][x]["CartData"])
             CartData = tk.Label(
-                tab, text=millify(data[i][0]["Factions"][x]["CartData"])
+                tab, text=cartvalue
             )
             CartData.grid(row=x + 1, column=4)
             logger.debug("Combat")
+            combatvalue = millify(data[i][0]["Factions"][x]["Combat Bonds"])
             CombatData = tk.Label(
-                tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
+                tab, text=combatvalue
             )
             CombatData.grid(row=x + 1, column=5)
     logger.debug("tab parent")
