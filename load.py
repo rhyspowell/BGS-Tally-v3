@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.8"
+this.VersionNo = "5.6.9"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -225,7 +225,7 @@ def faction_processing(entry):
     FactionStates = {"Factions": []}
     z = 0
     logger.debug("Faction processing entry data: " + str(entry))
-    # TODO: Handle systems with no factions 
+    # TODO: Handle systems with no factions
     for i in entry["Factions"]:
         if i["Name"] != "Pilots' Federation Local Branch":
             FactionNames.append(i["Name"])
@@ -531,7 +531,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         ussdrop()
 
 
-
 # Allow TKinter to get its correct data
 def today_data():
     return display_data("today")
@@ -539,8 +538,8 @@ def today_data():
 
 def yesterday_data():
     return display_data("yesterday")
-    
-    
+
+
 def display_data(day):
     logger.debug("Display Data called")
     if day == "today":
@@ -549,7 +548,7 @@ def display_data(day):
         data = this.YesterdayData
     else:
         data = "Incorrect day format"
-    
+
     logger.debug(str(data))
     form = tk.Toplevel(this.frame)
     form.title("BGS Tally v" + this.VersionNo + " - Data Today")
@@ -584,36 +583,35 @@ def display_data(day):
         z = len(data[i][0]["Factions"])
         for x in range(0, z):
             logger.debug("faction")
-            FactionName = tk.Label(
-                tab, text=data[i][0]["Factions"][x]["Faction"]
-            )
+            FactionName = tk.Label(tab, text=data[i][0]["Factions"][x]["Faction"])
             FactionName.grid(row=x + 1, column=0, sticky=tk.W)
             logger.debug("missions")
-            Missions = tk.Label(
-                tab, text=data[i][0]["Factions"][x]["MissionPoints"]
-            )
+            Missions = tk.Label(tab, text=data[i][0]["Factions"][x]["MissionPoints"])
             Missions.grid(row=x + 1, column=1)
-            # logger.debug("Trade")
-            # Trade = tk.Label(
-            #     tab,
-            #     text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
-            # )
-            # Trade.grid(row=x + 1, column=2)
-            # logger.debug("Bounty")
-            # Bounty = tk.Label(
-            #     tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
-            # )
-            # Bounty.grid(row=x + 1, column=3)
-            # logger.debug("Cart")
-            # CartData = tk.Label(
-            #     tab, text=millify(data[i][0]["Factions"][x]["CartData"])
-            # )
-            # CartData.grid(row=x + 1, column=4)
-            # logger.debug("Combat")
-            # CombatData = tk.Label(
-            #     tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
-            # )
-            # CombatData.grid(row=x + 1, column=5)
+            logger.debug("Trade")
+            try:
+                Trade = tk.Label(
+                    tab,
+                    text=millify(data[i][0]["Factions"][x]["TradeProfit"]),
+                )
+                Trade.grid(row=x + 1, column=2)
+            except Exception as e:
+                logger.debug("Trade failed for exception" + str(e))
+            logger.debug("Bounty")
+            Bounty = tk.Label(
+                tab, text=millify(data[i][0]["Factions"][x]["Bounties"])
+            )
+            Bounty.grid(row=x + 1, column=3)
+            logger.debug("Cart")
+            CartData = tk.Label(
+                tab, text=millify(data[i][0]["Factions"][x]["CartData"])
+            )
+            CartData.grid(row=x + 1, column=4)
+            logger.debug("Combat")
+            CombatData = tk.Label(
+                tab, text=millify(data[i][0]["Factions"][x]["Combat Bonds"])
+            )
+            CombatData.grid(row=x + 1, column=5)
     logger.debug("tab parent")
     tab_parent.pack(expand=1, fill="both")
 
