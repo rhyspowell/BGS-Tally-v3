@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.6.15"
+this.VersionNo = "5.7.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -498,22 +498,21 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         worksheet.update("H1", Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
-        t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-        for z in range(0, t):
-            if (
-                this.StationFaction.get()
-                == this.TodayData[this.DataIndex.get()][0]["Factions"][z]["Faction"]
-            ):
-                cost = entry["Count"] * entry["AvgPricePaid"]
-                profit = entry["TotalSale"] - cost
-                this.TodayData[this.DataIndex.get()][0]["Factions"][z][
-                    "TradeProfit"
-                ] += profit
-                system = this.TodayData[this.DataIndex.get()][0]["System"]
-                index = this.DataIndex.get()
-                data = profit
-                Sheet_Commit_Data(system, index, "Trade", data)
-        save_data()
+        # Black Market
+        # { "timestamp":"2021-05-25T12:20:21Z", "event":"MarketSell", "MarketID":3227073536, "Type":"slaves", "Count":50, "SellPrice":15800, "TotalSale":790000, "AvgPricePaid":11166, "IllegalGoods":true, "BlackMarket":true }
+        # Normal Market Sell
+        # { "timestamp":"2021-05-24T22:00:56Z", "event":"MarketSell", "MarketID":3227322112, "Type":"gold", "Count":1, "SellPrice":9744, "TotalSale":9744, "AvgPricePaid":0 }
+        if entry["BlackMarket"]:
+            logger.debug("Blackmarket market sell")
+        else:
+            logger.debug("Process good market sell")
+            print(this.StationFaction.get_str())
+            faction = this.StationFaction.get_str()
+            amount = entry["TotalSale"]
+            system = this.TodayData[this.DataIndex.get()][0]["System"]
+            index, new_amount = get_system_index(system, faction, "Combat Bonds", amount)
+            Sheet_Commit_Data(system, index, "Combat Bonds", new_amount)
+            save_data()
 
     if entry["event"] == "MissionAccepted":  # mission accpeted
         missionaccepted()

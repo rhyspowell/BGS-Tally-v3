@@ -27,4 +27,25 @@ Users will be notified if there is a new version is avalible.
 This plugin requries a google service account linked to a google sheet.
 I will detail how to do this soon.
 
+# Market Sell
+- Shows against the owner of the station (not always the same as the system)
+- Doesn't include Black Market profit
+
+Black Market sales are identified as ["BlackMarket":true]  in the event line, eg,
+
+```json
+{ "timestamp":"2021-05-25T12:20:21Z", "event":"MarketSell", "MarketID":3227073536, "Type":"slaves", "Count":50, "SellPrice":15800, "TotalSale":790000, "AvgPricePaid":11166, "IllegalGoods":true, "BlackMarket":true }
+```
+
+Unlike normal market sales, which show as;
+
+```json
+{ "timestamp":"2021-05-24T22:00:56Z", "event":"MarketSell", "MarketID":3227322112, "Type":"gold", "Count":1, "SellPrice":9744, "TotalSale":9744, "AvgPricePaid":0 }
+```
+
+In both cases the MarketID identifies the station, and thus the owner of the station;
+
+```json
+{ "timestamp":"2021-05-24T21:47:50Z", "event":"Docked", "StationName":"Jones City", "StationType":"Coriolis", "Taxi":false, "Multicrew":false, "StarSystem":"Akba Atacab", "SystemAddress":6405843096290, "MarketID":3227322112, "StationFaction":{ "Name":"Fatal Shadows", "FactionState":"Boom" }, "StationGovernment":"$government_Democracy;", "StationGovernment_Localised":"Democracy", "StationServices":[ "dock", "autodock", "blackmarket", "commodities", "contacts", "exploration", "missions", "outfitting", "crewlounge", "rearm", "refuel", "repair", "shipyard", "tuning", "engineer", "missionsgenerated", "flightcontroller", "stationoperations", "powerplay", "searchrescue", "materialtrader", "stationMenu", "shop", "livery", "socialspace" ], "StationEconomy":"$economy_Refinery;", "StationEconomy_Localised":"Refinery", "StationEconomies":[ { "Name":"$economy_Refinery;", "Name_Localised":"Refinery", "Proportion":0.880000 }, { "Name":"$economy_Industrial;", "Name_Localised":"Industrial", "Proportion":0.120000 } ], "DistFromStarLS":31.633158 }
+```
 
