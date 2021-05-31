@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.0"
+this.VersionNo = "5.7.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -502,7 +502,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         # { "timestamp":"2021-05-25T12:20:21Z", "event":"MarketSell", "MarketID":3227073536, "Type":"slaves", "Count":50, "SellPrice":15800, "TotalSale":790000, "AvgPricePaid":11166, "IllegalGoods":true, "BlackMarket":true }
         # Normal Market Sell
         # { "timestamp":"2021-05-24T22:00:56Z", "event":"MarketSell", "MarketID":3227322112, "Type":"gold", "Count":1, "SellPrice":9744, "TotalSale":9744, "AvgPricePaid":0 }
-        if entry["BlackMarket"]:
+        if "BlackMarket" in entry:
             logger.debug("Blackmarket market sell")
         else:
             logger.debug("Process good market sell")
