@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.2"
+this.VersionNo = "5.7.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
