@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.4"
+this.VersionNo = "5.7.5"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -487,6 +487,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         Sheet_Commit_Data(system, index, "Combat Bonds", new_amount)
         save_data()
 
+        # TODO: remove this code
         sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
         worksheet = sh.worksheet(this.TickTime)
         try:
@@ -506,11 +507,11 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             logger.debug("Blackmarket market sell")
         else:
             logger.debug("Process good market sell")
-            print(this.StationFaction.get())
             faction = this.StationFaction.get()
+            logger.debug(f"Station faction: {faction}")
             amount = entry["TotalSale"]
             system = this.TodayData[this.DataIndex.get()][0]["System"]
-            index, new_amount = get_system_index(system, faction, "Trade", amount)
+            index, new_amount = get_system_index(system, faction, "TradeProfit", amount)
             Sheet_Commit_Data(system, index, "Trade", new_amount)
             save_data()
 
