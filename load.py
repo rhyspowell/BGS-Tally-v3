@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.5"
+this.VersionNo = "5.7.6"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -487,16 +487,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         Sheet_Commit_Data(system, index, "Combat Bonds", new_amount)
         save_data()
 
-        # TODO: remove this code
-        sh = gspread.service_account(filename=this.cred).open("BSG Tally Store")
-        worksheet = sh.worksheet(this.TickTime)
-        try:
-            current_value = int(worksheet.acell("H1").value)
-        except Exception as e:
-            logger.error("Cell value error: " + str(e))
-            current_value = 0
-        Total = current_value + entry["Amount"]
-        worksheet.update("H1", Total)
 
     if entry["event"] == "MarketSell":  # Trade Profit
         # Black Market
