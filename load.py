@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.3"
+this.VersionNo = "5.7.4"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -510,8 +510,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             faction = this.StationFaction.get()
             amount = entry["TotalSale"]
             system = this.TodayData[this.DataIndex.get()][0]["System"]
-            index, new_amount = get_system_index(system, faction, "Combat Bonds", amount)
-            Sheet_Commit_Data(system, index, "Combat Bonds", new_amount)
+            index, new_amount = get_system_index(system, faction, "Trade", amount)
+            Sheet_Commit_Data(system, index, "Trade", new_amount)
             save_data()
 
     if entry["event"] == "MissionAccepted":  # mission accpeted
