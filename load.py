@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.6"
+this.VersionNo = "5.7.7"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -499,7 +499,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             logger.debug("Process good market sell")
             faction = this.StationFaction.get()
             logger.debug(f"Station faction: {faction}")
-            amount = entry["TotalSale"]
+            amount = entry["TotalSale"] - (entry["AvgPricePaid"] * entry["Count"])
             system = this.TodayData[this.DataIndex.get()][0]["System"]
             index, new_amount = get_system_index(system, faction, "TradeProfit", amount)
             Sheet_Commit_Data(system, index, "Trade", new_amount)
