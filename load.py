@@ -17,7 +17,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.7.8"
+this.VersionNo = "5.8.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -444,20 +444,19 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         entry["event"] == "SellExplorationData"
         or entry["event"] == "MultiSellExplorationData"
     ):  # get carto data value
-        t = len(this.TodayData[this.DataIndex.get()][0]["Factions"])
-        for z in range(0, t):
-            if (
-                this.StationFaction.get()
-                == this.TodayData[this.DataIndex.get()][0]["Factions"][z]["Faction"]
-            ):
-                this.TodayData[this.DataIndex.get()][0]["Factions"][z][
-                    "CartData"
-                ] += entry["TotalEarnings"]
-                system = this.TodayData[this.DataIndex.get()][0]["System"]
-                index = this.DataIndex.get()
-                data = entry["TotalEarnings"]
-                Sheet_Commit_Data(system, index, "Expo", data)
+        """
+        { "timestamp":"2021-06-03T18:09:27Z", "event":"SellExplorationData", "Systems":[ "Herculis Sector HH-V b2-3" ], "Discovered":[  ], "BaseValue":13692, "Bonus":0, "TotalEarnings":12323 }
+        """
+        logger.debug("Process good carto data")
+        faction = this.StationFaction.get()
+        logger.debug(f"Station faction: {faction}")
+        amount = entry["TotalEarnings"]
+        logger.debug(f"Trade amount: {amount}")
+        system = this.TodayData[this.DataIndex.get()][0]["System"]
+        index, new_amount = get_system_index(system, faction, "Expo", amount)
+        Sheet_Commit_Data(system, index, "Expo", new_amount)
         save_data()
+
 
     if (
         entry["event"] == "RedeemVoucher" and entry["Type"] == "bounty"
