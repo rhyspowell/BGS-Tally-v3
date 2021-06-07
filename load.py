@@ -5,6 +5,7 @@ import sys
 import json
 import millify
 import requests
+import sqlite3
 from config import config, appname
 from theme import theme
 import webbrowser
@@ -17,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.8.1"
+this.VersionNo = "5.9.0"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -27,6 +28,12 @@ this.TickTime = ""
 this.TickTimePlain = ""
 this.State = tk.IntVar()
 # this.cred = 'client_secret.json' #google sheet service account cred's path to file
+
+# Set up the localDB
+con = sqlite3.connect("bgs_tally.db")
+cur = con.cursor()
+cur.execute("create table systems (systemaddress, starsystem")
+con.commit()
 
 # This could also be returned from plugin_start3()
 plugin_name = os.path.basename(os.path.dirname(__file__))
@@ -172,7 +179,8 @@ def plugin_stop():
     EDMC is closing
     """
     save_data()
-
+    con.commit()
+    con.close()
     logger.info("Farewell cruel world!")
 
 
@@ -342,6 +350,18 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         # TODO: #3 add SupercruiseEntry
         # { "timestamp":"2021-05-24T10:04:11Z", "event":"SupercruiseEntry", "Taxi":true, "Multicrew":false, "StarSystem":"BD+47 2391", "SystemAddress":1458107912922 }
     ):  # get factions
+        # Add to sqlite starsystem info
+        starsystem = entry["StarSystem"]
+        systemaddress = entry["SystemAddress"]
+        if (
+            cur.fetchone(
+                "SELECT * from systems where systemaddress=:systemaddress",
+                {"systemaddress": systemaddress},
+            )
+            is None
+        ):
+            cur.execute("insert into systems (?, ?)", (systemaddress, starsystem))
+
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
         this.FactionNames, this.FactionStates = faction_processing(entry)
@@ -412,6 +432,9 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         Sheet_Insert_New_System(x + 1)
 
     if entry["event"] == "MissionCompleted":  # get mission influence value
+        """
+        { "timestamp":"2021-06-05T09:58:05Z", "event":"MissionCompleted", "Faction":"Camorra of Wikna", "Name":"Mission_Courier_name", "MissionID":778982924, "TargetFaction":"New Suss Alliance", "DestinationSystem":"Suss", "DestinationStation":"Szilard Orbital", "Reward":55972, "FactionEffects":[ { "Faction":"Camorra of Wikna", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":2007796585178, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" }, { "Faction":"New Suss Alliance", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":13863215048129, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" } ] }
+        """
         try:
             fe = entry["FactionEffects"]
             print("mission completed")
@@ -457,7 +480,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         Sheet_Commit_Data(system, index, "Expo", new_amount)
         save_data()
 
-
     if (
         entry["event"] == "RedeemVoucher" and entry["Type"] == "bounty"
     ):  # bounties collected
@@ -485,7 +507,6 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         index, new_amount = get_system_index(system, faction, "Combat Bonds", amount)
         Sheet_Commit_Data(system, index, "Combat Bonds", new_amount)
         save_data()
-
 
     if entry["event"] == "MarketSell":  # Trade Profit
         # Black Market
@@ -580,14 +601,13 @@ def display_data(day):
                 FactionName = tk.Label(tab, text=data[i][0]["Factions"][x]["Faction"])
                 FactionName.grid(row=x + 1, column=0, sticky=tk.W)
                 logger.debug("missions")
-                Missions = tk.Label(tab, text=data[i][0]["Factions"][x]["MissionPoints"])
+                Missions = tk.Label(
+                    tab, text=data[i][0]["Factions"][x]["MissionPoints"]
+                )
                 Missions.grid(row=x + 1, column=1)
                 logger.debug("Trade")
                 tradevalue = millify.millify(data[i][0]["Factions"][x]["TradeProfit"])
-                Trade = tk.Label(
-                    tab,
-                    text=tradevalue
-                )
+                Trade = tk.Label(tab, text=tradevalue)
                 Trade.grid(row=x + 1, column=2)
                 logger.debug("Bounty")
                 Bounty = tk.Label(
