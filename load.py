@@ -18,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.0"
+this.VersionNo = "5.9.1"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -435,6 +435,16 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         """
         { "timestamp":"2021-06-05T09:58:05Z", "event":"MissionCompleted", "Faction":"Camorra of Wikna", "Name":"Mission_Courier_name", "MissionID":778982924, "TargetFaction":"New Suss Alliance", "DestinationSystem":"Suss", "DestinationStation":"Szilard Orbital", "Reward":55972, "FactionEffects":[ { "Faction":"Camorra of Wikna", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":2007796585178, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" }, { "Faction":"New Suss Alliance", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":13863215048129, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" } ] }
         """
+        for factioninfo in entry["FactionEffects"]:
+            faction = factioninfo["Faction"]
+            amount = len(factioninfo["Influence"]["Influence"])
+            systemaddress = factioninfo["Influence"]["SystemAddress"]
+            system = cur.fetchone(
+                "SELECT starsystem from systems where systemaddress=:systemaddress",
+                {"systemaddress": systemaddress},
+            )
+            index, new_amount = get_system_index(system, faction, "MissionPoints", amount)
+            Sheet_Commit_Data(system, index, "Mission", new_amount)
         try:
             fe = entry["FactionEffects"]
             print("mission completed")
@@ -458,7 +468,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                                     this.TodayData[y][0]["Factions"][z][
                                         "MissionPoints"
                                     ] += inf
-                                    Sheet_Commit_Data(system, z, "Mission", inf)
+                                    # Sheet_Commit_Data(system, z, "Mission", inf)
             save_data()
         except KeyError:
             logger.error("Mission structure oops up side your head")
