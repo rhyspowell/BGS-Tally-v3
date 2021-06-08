@@ -18,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.5"
+this.VersionNo = "5.9.6"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -366,7 +366,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         starsystem = entry["StarSystem"]
         systemaddress = entry["SystemAddress"]
         if (
-            cur.fetchone(
+            cur.execute(
                 "SELECT * from systems where systemaddress=:systemaddress",
                 {"systemaddress": systemaddress},
             )
