@@ -18,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.2"
+this.VersionNo = "5.9.3"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -130,7 +130,7 @@ def plugin_start3(plugin_dir):
     this.Dir = plugin_dir
 
     # Set up the localDB
-    con = sqlite3.connect(this.Dir + "bgs_tally.db")
+    con = sqlite3.connect("bgs_tally.db")
     cur = con.cursor()
     try:
         systems_table = """ create table if not exists systems (
