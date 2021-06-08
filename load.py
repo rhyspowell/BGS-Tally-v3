@@ -451,8 +451,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         """
         for factioninfo in entry["FactionEffects"]:
             faction = factioninfo["Faction"]
-            amount = len(factioninfo["Influence"]["Influence"])
-            systemaddress = factioninfo["Influence"]["SystemAddress"]
+            amount = len(factioninfo["Influence"][0]["Influence"])
+            systemaddress = factioninfo["Influence"][0]["SystemAddress"]
             system = cur.fetchone(
                 "SELECT starsystem from systems where systemaddress=:systemaddress",
                 {"systemaddress": systemaddress},
