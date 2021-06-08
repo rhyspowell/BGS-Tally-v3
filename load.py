@@ -18,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.1"
+this.VersionNo = "5.9.2"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -28,12 +28,6 @@ this.TickTime = ""
 this.TickTimePlain = ""
 this.State = tk.IntVar()
 # this.cred = 'client_secret.json' #google sheet service account cred's path to file
-
-# Set up the localDB
-con = sqlite3.connect("bgs_tally.db")
-cur = con.cursor()
-cur.execute("create table systems (systemaddress, starsystem")
-con.commit()
 
 # This could also be returned from plugin_start3()
 plugin_name = os.path.basename(os.path.dirname(__file__))
@@ -134,6 +128,21 @@ def plugin_start3(plugin_dir):
     """
 
     this.Dir = plugin_dir
+
+    # Set up the localDB
+    con = sqlite3.connect(this.Dir + "bgs_tally.db")
+    cur = con.cursor()
+    try:
+        systems_table = """ create table if not exists systems (
+            systemaddress integer PRIMARY KEY,
+            starsystem text NOT NULL 
+        )"""
+        cur.execute(systems_table)
+        con.commit()
+    except Error as e:
+        logger.error("Processing DB and table creation")
+        logger.error("Error reported: " +str(e))
+
     try:
         this.cred = os.path.join(this.Dir, "client_secret.json")
     except FileNotFoundError:
