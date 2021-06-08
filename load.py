@@ -18,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.4"
+this.VersionNo = "5.9.5"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -142,6 +142,8 @@ def plugin_start3(plugin_dir):
     except Error as e:
         logger.error("Processing DB and table creation")
         logger.error("Error reported: " +str(e))
+    con.commit()
+    con.close()
 
     try:
         this.cred = os.path.join(this.Dir, "client_secret.json")
@@ -188,8 +190,6 @@ def plugin_stop():
     EDMC is closing
     """
     save_data()
-    con.commit()
-    con.close()
     logger.info("Farewell cruel world!")
 
 
@@ -348,6 +348,9 @@ def ussdrop():
 
 def journal_entry(cmdr, is_beta, system, station, entry, state):
 
+    con = sqlite3.connect(this.Dir + "\\bgs_tally.db")
+    cur = con.cursor()
+
     if this.Status.get() != "Active":
         print("Paused")
         return
@@ -374,6 +377,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
         this.FactionNames, this.FactionStates = faction_processing(entry)
+    con.commit()
+    con.close()
 
     if entry["event"] == "Docked":  # enter system and faction named
 
