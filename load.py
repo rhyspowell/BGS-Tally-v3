@@ -18,7 +18,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.6"
+this.VersionNo = "5.9.7"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -453,7 +453,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             faction = factioninfo["Faction"]
             amount = len(factioninfo["Influence"][0]["Influence"])
             systemaddress = factioninfo["Influence"][0]["SystemAddress"]
-            system = cur.fetchone(
+            system = cur.execute(
                 "SELECT starsystem from systems where systemaddress=:systemaddress",
                 {"systemaddress": systemaddress},
             )
