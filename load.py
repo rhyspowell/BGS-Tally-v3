@@ -19,7 +19,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.8"
+this.VersionNo = "5.9.9"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -266,6 +266,7 @@ def faction_processing(entry):
 
 
 def get_system_index(system, faction_name, action, amount):
+    logger.debug("Getting system index")
     # set index to 1 because thats where it starts
     system_index = 1
     faction_index = 0
@@ -293,9 +294,11 @@ def get_system_index(system, faction_name, action, amount):
             logger.debug("New amount: " + str(new_amount))
             this.TodayData[index][0]["Factions"][faction_index][action] = new_amount
             # +1 due to the spreadsheet not being an array
+            logger.debug(f"Returning index: {faction_index + 1}, new amount {new_amount}")
             return faction_index + 1, new_amount
         else:
             system_index += 1
+    logger.debug("Fallen out of the loop with no match")
 
 
 def docked():
@@ -450,6 +453,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         """
         { "timestamp":"2021-06-05T09:58:05Z", "event":"MissionCompleted", "Faction":"Camorra of Wikna", "Name":"Mission_Courier_name", "MissionID":778982924, "TargetFaction":"New Suss Alliance", "DestinationSystem":"Suss", "DestinationStation":"Szilard Orbital", "Reward":55972, "FactionEffects":[ { "Faction":"Camorra of Wikna", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":2007796585178, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" }, { "Faction":"New Suss Alliance", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":13863215048129, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" } ] }
         """
+        logging.debug("Processing Mission Completed")
         con = sqlite3.connect(this.Dir + "\\bgs_tally.db")
         cur = con.cursor()
         for factioninfo in entry["FactionEffects"]:
@@ -460,6 +464,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                 "SELECT starsystem from systems where systemaddress=:systemaddress",
                 {"systemaddress": systemaddress},
             )
+            logging.debug(f"Data passed to the getsystem index {system}, {faction} and {amount}")
             index, new_amount = get_system_index(system, faction, "MissionPoints", amount)
             Sheet_Commit_Data(system, index, "Mission", new_amount)
         
