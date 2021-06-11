@@ -19,7 +19,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.14"
+this.VersionNo = "5.9.15"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -369,6 +369,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         # Add to sqlite starsystem info
         starsystem = entry["StarSystem"]
         systemaddress = entry["SystemAddress"]
+        logger.debug("do we have the right data to add the system")
+        logger.debug(f"System address {systemaddress} star system {starsystem}")
         logger.debug("Check and add system if required")
         cur.execute("SELECT COUNT(*) from systems where systemaddress=?", (int(systemaddress)))
         rows = cur.fetchone()
