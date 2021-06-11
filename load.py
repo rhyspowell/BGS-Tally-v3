@@ -19,7 +19,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.9"
+this.VersionNo = "5.9.10"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -369,15 +369,16 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         # Add to sqlite starsystem info
         starsystem = entry["StarSystem"]
         systemaddress = entry["SystemAddress"]
-        if (
-            cur.execute(
-                "SELECT * from systems where systemaddress=:systemaddress",
-                {"systemaddress": systemaddress},
-            )
-            is None
-        ):
-            cur.execute("insert into systems (?, ?)", (systemaddress, starsystem))
-
+        logger.debug("Check and add system if required")
+        cur.execute("SELECT * from systems where systemaddress=:systemaddress",{"systemaddress": systemaddress})
+        rows = cur.fetchall
+        logger.debug(f"Rows fetched: {rows}")
+        try:
+            if rows == None:
+                cur.execute("insert into systems(systemaddress, starsystem) values (?, ?)", systemaddress, starsystem)
+        except Exception as e:
+            logger.debug("Adding to database error")
+            logger.debug(e)
         this.FactionNames = []
         this.FactionStates = {"Factions": []}
         this.FactionNames, this.FactionStates = faction_processing(entry)
