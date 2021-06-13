@@ -19,7 +19,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.16"
+this.VersionNo = "5.9.17"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -376,7 +376,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         rows = cur.fetchone()
         logger.debug(f"Rows fetched: {rows}")
         try:
-            if rows == 0:
+            if rows[0] == 0:
                 cur.execute("insert into systems(systemaddress, starsystem) values (?, ?)", (int(systemaddress), starsystem))
         except Exception as e:
             logger.debug("Adding to database error")
