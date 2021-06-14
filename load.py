@@ -19,7 +19,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.19"
+this.VersionNo = "5.9.20"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -465,7 +465,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         """
         { "timestamp":"2021-06-05T09:58:05Z", "event":"MissionCompleted", "Faction":"Camorra of Wikna", "Name":"Mission_Courier_name", "MissionID":778982924, "TargetFaction":"New Suss Alliance", "DestinationSystem":"Suss", "DestinationStation":"Szilard Orbital", "Reward":55972, "FactionEffects":[ { "Faction":"Camorra of Wikna", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":2007796585178, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" }, { "Faction":"New Suss Alliance", "Effects":[ { "Effect":"$MISSIONUTIL_Interaction_Summary_EP_up;", "Effect_Localised":"The economic status of $#MinorFaction; has improved in the $#System; system.", "Trend":"UpGood" } ], "Influence":[ { "SystemAddress":13863215048129, "Trend":"UpGood", "Influence":"+++" } ], "ReputationTrend":"UpGood", "Reputation":"+" } ] }
         """
-        logging.debug("Processing Mission Completed")
+        logger.debug("Processing Mission Completed")
         con = sqlite3.connect(this.Dir + "\\bgs_tally.db")
         cur = con.cursor()
         for factioninfo in entry["FactionEffects"]:
@@ -474,11 +474,14 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             systemaddress = factioninfo["Influence"][0]["SystemAddress"]
             cur.execute("SELECT starsystem from systems where systemaddress=?", (systemaddress,))
             system = cur.fetchone()
-            logging.debug(
+            logger.debug(
                 f"Data passed to the getsystem index {system}, {faction} and {amount}"
             )
             index, new_amount = get_system_index(
                 system, faction, "MissionPoints", amount
+            )
+            logger.debug(
+                f"Data passed to the sheet commit data {system}, {index} and {new_amount}"
             )
             Sheet_Commit_Data(system, index, "Mission", new_amount)
 
