@@ -19,7 +19,7 @@ from tkinter import ttk
 
 
 this = sys.modules[__name__]  # For holding module globals
-this.VersionNo = "5.9.17"
+this.VersionNo = "5.9.18"
 this.FactionNames = []
 this.TodayData = {}
 this.YesterdayData = {}
@@ -142,7 +142,7 @@ def plugin_start3(plugin_dir):
         con.commit()
     except Error as e:
         logger.error("Processing DB and table creation")
-        logger.error("Error reported: " +str(e))
+        logger.error("Error reported: " + str(e))
     con.commit()
     con.close()
 
@@ -294,11 +294,15 @@ def get_system_index(system, faction_name, action, amount):
             logger.debug("New amount: " + str(new_amount))
             this.TodayData[index][0]["Factions"][faction_index][action] = new_amount
             # +1 due to the spreadsheet not being an array
-            logger.debug(f"Returning index: {faction_index + 1}, new amount {new_amount}")
+            logger.debug(
+                f"Returning index: {faction_index + 1}, new amount {new_amount}"
+            )
             return faction_index + 1, new_amount
         else:
             system_index += 1
+
     logger.debug("Fallen out of the loop with no match")
+    return faction_index + 1, new_amount
 
 
 def docked():
@@ -372,12 +376,17 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         logger.debug("do we have the right data to add the system")
         logger.debug(f"System address {systemaddress} star system {starsystem}")
         logger.debug("Check and add system if required")
-        cur.execute("SELECT COUNT(*) from systems where systemaddress=?", (systemaddress,))
+        cur.execute(
+            "SELECT COUNT(*) from systems where systemaddress=?", (systemaddress,)
+        )
         rows = cur.fetchone()
         logger.debug(f"Rows fetched: {rows}")
         try:
             if rows[0] == 0:
-                cur.execute("insert into systems(systemaddress, starsystem) values (?, ?)", (int(systemaddress), starsystem))
+                cur.execute(
+                    "insert into systems(systemaddress, starsystem) values (?, ?)",
+                    (int(systemaddress), starsystem),
+                )
         except Exception as e:
             logger.debug("Adding to database error")
             logger.debug(e)
@@ -467,10 +476,14 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
                 "SELECT starsystem from systems where systemaddress=:systemaddress",
                 {"systemaddress": systemaddress},
             )
-            logging.debug(f"Data passed to the getsystem index {system}, {faction} and {amount}")
-            index, new_amount = get_system_index(system, faction, "MissionPoints", amount)
+            logging.debug(
+                f"Data passed to the getsystem index {system}, {faction} and {amount}"
+            )
+            index, new_amount = get_system_index(
+                system, faction, "MissionPoints", amount
+            )
             Sheet_Commit_Data(system, index, "Mission", new_amount)
-        
+
         con.commit()
         con.close()
 
